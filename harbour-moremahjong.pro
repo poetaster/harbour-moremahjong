@@ -29,6 +29,7 @@ DISTFILES += \
     index.html \
     index.old.html \
     rpm/harbour-moremahjong.changes.in \
+    rpm/harbour-moremahjong.changes.in \
     rpm/harbour-moremahjong.changes.run.in \
     rpm/harbour-moremahjong.spec \
     rpm/harbour-moremahjong.yaml \
