@@ -24,7 +24,7 @@ Page {
     SilicaWebView {
         id: webView
         anchors.fill: parent
-        url: "../www/index.html"
+        url: "../index.html"
     }
     /*
     SilicaFlickable {
