@@ -13,7 +13,6 @@
 TARGET = harbour-moremahjong
 
 CONFIG += sailfishapp
-
 SOURCES += \
     src/harbour-moremahjong.cpp
 
@@ -26,16 +25,18 @@ DISTFILES += \
     qml/images/*.png \
     qml/css/*.css \
     qml/fonts/*.ttf \
-    index.html \
-    index.old.html \
+    qml/www/* \
     rpm/harbour-moremahjong.changes.in \
     rpm/harbour-moremahjong.changes.in \
+    rpm/harbour-moremahjong.changes.run \
     rpm/harbour-moremahjong.changes.run.in \
     rpm/harbour-moremahjong.spec \
+    rpm/harbour-moremahjong.spec \
+    rpm/harbour-moremahjong.yaml \
     rpm/harbour-moremahjong.yaml \
     translations/*.ts \
     harbour-morekmahjong.png \
-    harbour-moremahjong.desktop
+    harbour-moremahjong.desktop \
 
 SAILFISHAPP_ICONS = 86x86 108x108 128x128
 
