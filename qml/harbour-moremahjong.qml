@@ -35,15 +35,9 @@ import "pages"
 
 ApplicationWindow
 {
-    allowedOrientations: Orientation.Landscape
+    allowedOrientations: Orientation.All
     initialPage: Component { FirstPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
-
-   /* WebView {
-         id: webView
-         anchors.fill: parent
-         url: "index.html"
-     }*/
 
 
 }

@@ -26,6 +26,7 @@ DISTFILES += \
     qml/css/*.css \
     qml/fonts/*.ttf \
     qml/www/* \
+    qml/assets/* \
     rpm/harbour-moremahjong.changes.in \
     rpm/harbour-moremahjong.changes.in \
     rpm/harbour-moremahjong.changes.run \
