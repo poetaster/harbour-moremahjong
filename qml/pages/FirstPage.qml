@@ -1,9 +1,11 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import QtWebKit 3.0
 
 Page {
     id:view
-    allowedOrientations: Orientation.All
+    allowedOrientations: Orientation.Landscape
+
     /*onStatusChanged: {
         if (PageStatus.Activating) {
             //console.debug(webView.width)
@@ -25,11 +27,11 @@ Page {
                 }
             }
         }
-
-    SilicaWebView {
+    //WebView { }
+    WebView {
         id: webView
         anchors.fill: parent
-        url: "../index.html"
+        url: "../mah/index.html"
     }
 
     }

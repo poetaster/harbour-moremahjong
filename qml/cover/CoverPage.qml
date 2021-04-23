@@ -9,7 +9,7 @@ CoverBackground {
         //anchors.top: back.top
         anchors.horizontalCenter: parent.horizontalCenter
         id: label
-        text: qsTr("Simple Mahjong")
+        text: qsTr("Mah jong")
     }
     Image {
 

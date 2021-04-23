@@ -18,22 +18,18 @@ SOURCES += \
 
 DISTFILES += \
     qml/cover/CoverPage.qml \
-    qml/harbour-simplemahjong.qml \
+    qml/harbour-moremahjong.qml \
     qml/pages/About.qml \
     qml/pages/FirstPage.qml \
     qml/js/*.js \
     qml/images/*.png \
     qml/css/*.css \
     qml/fonts/*.ttf \
-    qml/www/* \
+    qml/mah/* \
     qml/assets/* \
     rpm/harbour-moremahjong.changes.in \
-    rpm/harbour-moremahjong.changes.in \
     rpm/harbour-moremahjong.changes.run \
-    rpm/harbour-moremahjong.changes.run.in \
     rpm/harbour-moremahjong.spec \
-    rpm/harbour-moremahjong.spec \
-    rpm/harbour-moremahjong.yaml \
     rpm/harbour-moremahjong.yaml \
     translations/*.ts \
     harbour-morekmahjong.png \
