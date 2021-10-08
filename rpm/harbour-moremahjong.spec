@@ -12,7 +12,7 @@ Summary:    Not so Simple Mahjong
 Version:    1.0
 Release:    1
 Group:      Qt/Qt
-License:    GPL v3
+License:    GPLv3
 URL:        http://poetaster.de
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  harbour-moremahjong.yaml
@@ -21,6 +21,7 @@ BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
 BuildRequires:  pkgconfig(Qt5Quick)
+BuildRequires:  pkgconfig(qt5embedwidget)
 BuildRequires:  desktop-file-utils
 
 %description

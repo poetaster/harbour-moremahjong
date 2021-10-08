@@ -16,6 +16,8 @@ CONFIG += sailfishapp
 SOURCES += \
     src/harbour-moremahjong.cpp
 
+PKGCONFIG += qt5embedwidget
+
 DISTFILES += \
     qml/cover/CoverPage.qml \
     qml/harbour-moremahjong.qml \
