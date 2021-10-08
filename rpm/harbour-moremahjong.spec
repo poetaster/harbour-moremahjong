@@ -12,7 +12,7 @@ Summary:    Not so Simple Mahjong
 Version:    1.0
 Release:    1
 Group:      Qt/Qt
-License:    GPLv3
+License:    MIT
 URL:        http://poetaster.de
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  harbour-moremahjong.yaml
