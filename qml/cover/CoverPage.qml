@@ -6,22 +6,19 @@ import Sailfish.Silica 1.0
 CoverBackground {
 
     Label {
-        //anchors.top: back.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        id: spacer
+    }
+    /*Label {
         anchors.horizontalCenter: parent.horizontalCenter
         id: label
-        text: qsTr("Mah jong")
-    }
+        text: qsTr("Mah Solitaire")
+    }*/
     Image {
-
-        id:hnImage
+        id:mahImage
         anchors.centerIn: parent
-        source: "/usr/share/icons/hicolor/128x128/apps/harbour-simplemahjong.png"
-        //source: Qt.resolvedUrl("harbour-hackernews.png")
-        //anchors.fill: parent
-
+        source: "/usr/share/icons/hicolor/128x128/apps/harbour-moremahjong.png"
     }
-
-
 
     CoverActionList {
         id: coverAction

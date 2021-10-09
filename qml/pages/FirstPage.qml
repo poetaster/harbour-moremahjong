@@ -1,20 +1,11 @@
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import QtWebKit 3.0
+import Sailfish.WebView 1.0
 
 Page {
     id:view
-    allowedOrientations: Orientation.Landscape
+    allowedOrientations: Orientation.All
 
-    /*onStatusChanged: {
-        if (PageStatus.Activating) {
-            //console.debug(webView.width)
-            //console.debug(webView.height)
-            if (listModel.count < 1) {
-                    page.reloadStories();
-                }
-        }
-    }*/
     SilicaFlickable {
         anchors.fill: parent
 

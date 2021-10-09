@@ -19,39 +19,36 @@ Page {
             spacing: Theme.paddingLarge
 
             PageHeader {
-                title: "Mah Mahjong Solitaire"
+                title: qsTr("Mah Solitaire")
             }
             Label {
-                text: "Version 1.2.0, for Sailfish by poetaster, based on https://ffalt.github.io/mah."
-                color: Theme.primaryColor
-                wrapMode: TextEdit.WordWrap
-                width: parent.width
-            }
-            Label {
-
                 width: parent.width - (2 * Theme.paddingLarge)
                 wrapMode: Text.WrapWord
                 text: ""
             }
             Label {
-                text: "Contact the poetaster, <a href=\"mailto:blueprint@poetaster.de?subject=About%20MahMahjong%20SailfishOS\">blueprint@poetaster.de</a>"
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: qsTr("Based on") + "\n https://ffalt.github.io/mah. \n " +
+                                  "© 2021 Mark Washeim \n" +
+                                  qsTr("MIT license.")
                 color: Theme.primaryColor
-                linkColor: "#ffffff"
                 wrapMode: TextEdit.WordWrap
                 width: parent.width
-                font.pixelSize: units.fx("small")
-                onLinkActivated: {
-                    Qt.openUrlExternally(link)
-                }
             }
             Label {
-                text: "Source code available in <a href=\"https://github.com/poetaster/harbour-moremahjong\">github</a> under the terms of license shown in the app."
+                width: parent.width - (2 * Theme.paddingLarge)
+                wrapMode: Text.WrapWord
+                text: ""
+            }
+            Label {
                 color: Theme.primaryColor
                 linkColor: "#ffffff"
                 wrapMode: TextEdit.WordWrap
                 width: parent.width
-                font.pixelSize: units.fx("small")
+                //font.pixelSize: units.fx("small")
+                text: "<a href=\"https://github.com/poetaster/harbour-moremahjong\">Source: github</a>"
                 onLinkActivated: {
+                    //console.log("Opening external browser: " + link);
                     Qt.openUrlExternally(link)
                 }
             }
