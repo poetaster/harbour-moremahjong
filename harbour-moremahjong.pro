@@ -23,12 +23,7 @@ DISTFILES += \
     qml/harbour-moremahjong.qml \
     qml/pages/About.qml \
     qml/pages/FirstPage.qml \
-    qml/js/*.js \
-    qml/images/*.png \
-    qml/css/*.css \
-    qml/fonts/*.ttf \
     qml/mah/* \
-    qml/assets/* \
     rpm/harbour-moremahjong.changes.in \
     rpm/harbour-moremahjong.changes.run \
     rpm/harbour-moremahjong.spec \
