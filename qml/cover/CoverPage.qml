@@ -17,7 +17,7 @@ CoverBackground {
     Image {
         id:mahImage
         anchors.centerIn: parent
-        source: "/usr/share/icons/hicolor/128x128/apps/harbour-moremahjong.png"
+        source: "/usr/share/icons/hicolor/172x172/apps/harbour-moremahjong.png"
     }
 
     CoverActionList {

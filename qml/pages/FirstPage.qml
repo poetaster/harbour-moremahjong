@@ -10,14 +10,14 @@ Page {
         anchors.fill: parent
 
         // PullDownMenu and PushUpMenu must be declared in SilicaFlickable, SilicaListView or SilicaGridView
-        PullDownMenu {
+/*        PullDownMenu {
             MenuItem {
                 text: qsTr("About")
                 onClicked: {
                     pageStack.push(Qt.resolvedUrl("About.qml"),{});
                 }
             }
-        }
+        }*/
     //WebView { }
     WebView {
         id: webView

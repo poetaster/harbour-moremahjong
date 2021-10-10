@@ -27,7 +27,7 @@ Page {
                 text: ""
             }
             Label {
-                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.centerIn: parent
                 text: qsTr("Based on") + "\n https://ffalt.github.io/mah. \n " +
                                   "© 2021 Mark Washeim \n" +
                                   qsTr("MIT license.")
@@ -41,6 +41,7 @@ Page {
                 text: ""
             }
             Label {
+                anchors.horizontalCenter: parent.horizontalCenter
                 color: Theme.primaryColor
                 linkColor: "#ffffff"
                 wrapMode: TextEdit.WordWrap
