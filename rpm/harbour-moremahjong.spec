@@ -9,7 +9,7 @@ Name:       harbour-moremahjong
 # << macros
 
 Summary:    Not so Simple Mahjong
-Version:    1.0
+Version:    1.2.0
 Release:    1
 Group:      Qt/Qt
 License:    MIT
@@ -25,7 +25,7 @@ BuildRequires:  pkgconfig(qt5embedwidget)
 BuildRequires:  desktop-file-utils
 
 %description
-a not simple mahjong tile solitaire
+a not so simple mahjong tile solitaire
 
 
 %prep

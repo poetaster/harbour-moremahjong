@@ -1,6 +1,6 @@
 Name: harbour-moremahjong
 Summary: Not so Simple Mahjong
-Version: 1.0
+Version: 1.2.0
 Release: 1
 # The contents of the Group field should be one of the groups listed here:
 # https://github.com/mer-tools/spectacle/blob/master/data/GROUPS
@@ -12,7 +12,7 @@ License: MIT
 Sources:
 - '%{name}-%{version}.tar.bz2'
 Description: |
-  a not simple mahjong tile solitaire
+  a not so simple mahjong tile solitaire
 Builder: qmake5
 
 # This section specifies build dependencies that are resolved using pkgconfig.
