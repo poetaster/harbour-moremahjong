@@ -9,13 +9,13 @@ Name:       harbour-moremahjong
 # << macros
 
 Summary:    Not so Simple Mahjong
-Version:    1.2.0
+Version:    1.2.1
 Release:    1
 Group:      Qt/Qt
 License:    MIT
 URL:        http://poetaster.de
 Source0:    %{name}-%{version}.tar.bz2
-Source100:  harbour-moremahjong.yaml
+
 Requires:   sailfishsilica-qt5 >= 0.10.9
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
@@ -27,6 +27,23 @@ BuildRequires:  desktop-file-utils
 %description
 a not so simple mahjong tile solitaire
 
+%if "%{?vendor}" == "chum"
+PackageName: Mah Solitaire
+Type: desktop-application
+Categories:
+ - Game
+DeveloperName: Mark Washeim
+Custom:
+ - Repo: https://github.com/poetaster/harbour-moremahjong
+Icon: https://raw.githubusercontent.com/poetaster/harbour-moremahjong/master/icons/172x172/harbour-moremahjong.png
+Screenshots:
+ - https://raw.githubusercontent.com/poetaster/harbour-moremahjong/main/screen-1.png
+ - https://raw.githubusercontent.com/poetaster/harbour-moremahjong/main/screen-2.png
+ - https://raw.githubusercontent.com/poetaster/harbour-moremahjong/main/screen-3.png
+Url:
+  Homepage: https://github.com/poetaster/harbour-moremahjong
+  Donation: https://www.paypal.me/poetasterFOSS
+%endif
 
 %prep
 %setup -q -n %{name}-%{version}

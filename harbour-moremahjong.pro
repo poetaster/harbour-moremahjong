@@ -11,7 +11,6 @@
 
 # The name of your application
 TARGET = harbour-moremahjong
-
 CONFIG += sailfishapp
 SOURCES += \
     src/harbour-moremahjong.cpp
@@ -27,12 +26,11 @@ DISTFILES += \
     rpm/harbour-moremahjong.changes.in \
     rpm/harbour-moremahjong.changes.run \
     rpm/harbour-moremahjong.spec \
-    rpm/harbour-moremahjong.yaml \
     translations/*.ts \
     harbour-morekmahjong.png \
     harbour-moremahjong.desktop \
 
-SAILFISHAPP_ICONS = 86x86 108x108 128x128
+SAILFISHAPP_ICONS = 86x86 108x108 128x128 172x172
 
 # to disable building translations every time, comment out the
 # following CONFIG line
