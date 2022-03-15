@@ -9,8 +9,8 @@ Page {
     SilicaFlickable {
         anchors.fill: parent
 
-        // PullDownMenu and PushUpMenu must be declared in SilicaFlickable, SilicaListView or SilicaGridView
-/*        PullDownMenu {
+        /* Sadly this ruins the layout
+    *      PullDownMenu {
             MenuItem {
                 text: qsTr("About")
                 onClicked: {
@@ -18,12 +18,16 @@ Page {
                 }
             }
         }*/
-    //WebView { }
-    WebView {
-        id: webView
-        anchors.fill: parent
-        url: "../mah/index.html"
-    }
+        WebView {
+            /* This will probably be required from 4.4 on. */
+            Component.onCompleted: {
+                //WebEngineSettings.setPreference("security.disable_cors_checks", true, WebEngineSettings.BoolPref)
+                WebEngineSettings.setPreference("security.fileuri.strict_origin_policy", false, WebEngineSettings.BoolPref)
+            }
+            id: webView
+            anchors.fill: parent
+            url: "../mah/index.html"
+        }
 
     }
 
