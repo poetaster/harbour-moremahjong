@@ -24,28 +24,21 @@ void migrateLocalStorage()
 
     // The new location of the LocalStorage database
     QDir newDbDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/de.poetaster/harbour-moremahjong/");
+    QDir mozDbDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) + "/de.poetaster/harbour-moremahjong/.mozilla");
+    if(mozDbDir.exists())
+        return;
+    //newDbDir.mkpath(newDbDir.path());
+    //QString pathOld = "/harbour-moremahjong/harbour-moremahjong/.mozilla/webappsstore.sqlite";
+    //QString pathNew = "/de.poetaster/harbour-moremahjong/.mozilla/webappsstore.sqlite";
+    QString pathOld = "/harbour-moremahjong/harbour-moremahjong/.mozilla";
+    QString pathNew = "/de.poetaster/harbour-moremahjong/.mozilla";
 
-    //if(newDbDir.exists())
-    //    return;
+    //QFile newDb(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +  pathNew );
+    //newDb.remove();
 
-    newDbDir.mkpath(newDbDir.path());
-
-    //QString dbname = QString(QCryptographicHash::hash(("harbour-dwd"), QCryptographicHash::Md5).toHex());
-    //qDebug() << "dbname: " + name;
-
-    QString pathOld = "/harbour-moremahjong/harbour-moremahjong/.mozilla/webappsstore.sqlite";
-    QString pathNew = "/de.poetaster/harbour-moremahjong/.mozilla/webappsstore.sqlite";
-
-    // The old LocalStorage database
-    // QStandardPaths::writableLocation(QStandardPaths::AppDataLocation)
-    QFile newDb(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +  pathNew );
-    newDb.remove();
     QFile oldDb(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +  pathOld );
     oldDb.rename(QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +  pathNew );
 
-    // proof of concept you can just move.
-    //oldDb.rename(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) +  pathNew + dbname + ".sqlite");
-    //oldIni.rename(QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation) + pathNew + dbname + ".ini");
 }
 
 int main(int argc, char *argv[])
