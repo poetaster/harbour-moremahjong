@@ -11,9 +11,8 @@
 
 # The name of your application
 TARGET = harbour-moremahjong
-CONFIG += sailfishapp
-SOURCES += \
-    src/harbour-moremahjong.cpp
+CONFIG += sailfishapp_qml
+SOURCES +=
 
 PKGCONFIG += qt5embedwidget
 

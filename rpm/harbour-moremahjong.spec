@@ -13,10 +13,11 @@ Version:    1.2.3
 Release:    1
 Group:      Qt/Qt
 License:    MIT
-URL:        http://poetaster.de
+URL:        https://github.com/poetaster/harbour-moremahjong
+BuildArch:  noarch
 Source0:    %{name}-%{version}.tar.bz2
+Requires:   libsailfishapp-launcher
 
-Requires:   sailfishsilica-qt5 >= 0.10.9
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
 BuildRequires:  pkgconfig(Qt5Qml)
@@ -32,7 +33,7 @@ PackageName: Mah Solitaire
 Type: desktop-application
 Categories:
  - Game
-DeveloperName: Mark Washeim
+DeveloperName: Mark Washeim (poetaster)
 Custom:
  - Repo: https://github.com/poetaster/harbour-moremahjong
 Icon: https://raw.githubusercontent.com/poetaster/harbour-moremahjong/master/icons/172x172/harbour-moremahjong.png

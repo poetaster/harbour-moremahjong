@@ -2,8 +2,9 @@
 Type=Application
 X-Nemo-Application-Type=silica-qt5
 Icon=harbour-moremahjong
-Exec=harbour-moremahjong
+Exec=sailfish-qml harbour-moremahjong
 Name=Mah Solitaire
+
 # translation example:
 # your app name in German locale (de)
 #
@@ -14,3 +15,4 @@ Name=Mah Solitaire
 [X-Sailjail]
 OrganizationName=de.poetaster
 ApplicationName=harbour-moremahjong
+Permissions=Internet;UserDirs;WebView,Audio
