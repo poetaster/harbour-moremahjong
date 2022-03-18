@@ -12,7 +12,6 @@
 # The name of your application
 TARGET = harbour-moremahjong
 CONFIG += sailfishapp_qml
-SOURCES +=
 
 PKGCONFIG += qt5embedwidget
 

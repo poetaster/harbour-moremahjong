@@ -15,4 +15,4 @@ Name=Mah Solitaire
 [X-Sailjail]
 OrganizationName=de.poetaster
 ApplicationName=harbour-moremahjong
-Permissions=Internet;UserDirs;WebView,Audio
+Permissions=UserDirs;WebView;Audio
