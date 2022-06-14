@@ -9,7 +9,7 @@ Name:       harbour-moremahjong
 # << macros
 
 Summary:    Not so Simple Mahjong
-Version:    1.2.3
+Version:    1.5.1
 Release:    1
 Group:      Qt/Qt
 License:    MIT
@@ -26,14 +26,14 @@ BuildRequires:  pkgconfig(qt5embedwidget)
 BuildRequires:  desktop-file-utils
 
 %description
-a not so simple mahjong tile solitaire
+a not so simple mahjong tile solitaire originating at: https://github.com/ffalt/mah/
 
 %if "%{?vendor}" == "chum"
 PackageName: Mah Solitaire
 Type: desktop-application
 Categories:
  - Game
-DeveloperName: Mark Washeim (poetaster)
+PackagerName: Mark Washeim (poetaster)
 Custom:
  - Repo: https://github.com/poetaster/harbour-moremahjong
 Icon: https://raw.githubusercontent.com/poetaster/harbour-moremahjong/master/icons/172x172/harbour-moremahjong.png
