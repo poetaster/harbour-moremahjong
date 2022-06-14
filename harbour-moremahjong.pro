@@ -21,6 +21,12 @@ DISTFILES += \
     qml/pages/About.qml \
     qml/pages/FirstPage.qml \
     qml/mah/* \
+    qml/mah/assets/* \
+    qml/mah/assets/sounds/* \
+    qml/mah/assets/app/* \
+    qml/mah/assets/data/* \
+    qml/mah/assets/svg/* \
+    qml/mah/assets/img/* \
     rpm/harbour-moremahjong.changes.in \
     rpm/harbour-moremahjong.changes.run \
     rpm/harbour-moremahjong.spec \
