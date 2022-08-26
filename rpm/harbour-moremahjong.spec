@@ -16,9 +16,7 @@ License:    MIT
 URL:        https://github.com/poetaster/harbour-moremahjong
 BuildArch:  noarch
 Source0:    %{name}-%{version}.tar.bz2
-Requires:   qml(Sailfish.WebEngine)
-Requires:   qml(Sailfish.WebView)
-Requires:   mapplauncherd-booster-browser
+Requires:   libsailfishapp-launcher
 
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)
