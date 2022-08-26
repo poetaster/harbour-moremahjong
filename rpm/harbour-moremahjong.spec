@@ -9,14 +9,16 @@ Name:       harbour-moremahjong
 # << macros
 
 Summary:    Not so Simple Mahjong
-Version:    1.5.1
+Version:    1.6.1
 Release:    1
 Group:      Qt/Qt
 License:    MIT
 URL:        https://github.com/poetaster/harbour-moremahjong
 BuildArch:  noarch
 Source0:    %{name}-%{version}.tar.bz2
-Requires:   libsailfishapp-launcher
+Requires:   qml(Sailfish.WebEngine)
+Requires:   qml(Sailfish.WebView)
+Requires:   mapplauncherd-booster-browser
 
 BuildRequires:  pkgconfig(sailfishapp) >= 1.0.2
 BuildRequires:  pkgconfig(Qt5Core)

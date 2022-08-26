@@ -18,7 +18,7 @@ CoverBackground {
        anchors.top: mahImage.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         id: label
-        text: qsTr("Mah Solitaire") + " 1.5.1"
+        text: qsTr("Mah Solitaire") + " 1.6.1"
     }
 
     CoverActionList {
