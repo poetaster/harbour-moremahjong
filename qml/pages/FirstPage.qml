@@ -7,29 +7,16 @@ Page {
     id:view
     allowedOrientations: Orientation.All
 
-    SilicaFlickable {
-        anchors.fill: parent
+     WebView {
+         /* This will probably be required from 4.4 on. */
+         Component.onCompleted: {
+             //WebEngineSettings.setPreference("security.disable_cors_checks", true, WebEngineSettings.BoolPref)
+             WebEngineSettings.setPreference("security.fileuri.strict_origin_policy", false, WebEngineSettings.BoolPref)
+         }
+         id: webView
+         anchors.fill: parent
+         url: "../mah/index.html"
+     }
 
-        /* Sadly this ruins the layout
-    *      PullDownMenu {
-            MenuItem {
-                text: qsTr("About")
-                onClicked: {
-                    pageStack.push(Qt.resolvedUrl("About.qml"),{});
-                }
-            }
-        }*/
-        WebView {
-            /* This will probably be required from 4.4 on. */
-            Component.onCompleted: {
-                //WebEngineSettings.setPreference("security.disable_cors_checks", true, WebEngineSettings.BoolPref)
-                WebEngineSettings.setPreference("security.fileuri.strict_origin_policy", false, WebEngineSettings.BoolPref)
-            }
-            id: webView
-            anchors.fill: parent
-            url: "../mah/index.html"
-        }
-
-    }
 
 }

@@ -26,6 +26,7 @@ DISTFILES += \
     qml/mah/assets/app/* \
     qml/mah/assets/data/* \
     qml/mah/assets/svg/* \
+    qml/mah/assets/svg/*/* \
     qml/mah/assets/img/* \
     rpm/harbour-moremahjong.changes.in \
     rpm/harbour-moremahjong.changes.run \
