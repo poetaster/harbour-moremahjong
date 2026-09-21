@@ -210,7 +210,7 @@ Page {
         // centered. There is no user zoom/pan: the board is always the best fit.
         function adjustFit() {
             if (boardW > 0 && boardH > 0 && width > 0 && height > 0)
-                fitScale = Math.min(width / boardW, height / boardH) * 0.90
+                fitScale = Math.min(width / boardW, height / boardH) * 0.95
         }
 
         Item {
@@ -221,7 +221,7 @@ Page {
             // offset by (w/2)(1-s) in each axis.
             transformOrigin: ItemOrigin.TopLeft
             x: ( stage.width - boardItem.width ) / 2 - 100
-            y: ( stage.height - boardItem.height ) / 2
+            y: ( stage.height - boardItem.height ) / 2 - 100
             width: stage.boardW - (4*Theme.paddingLarge)
             height: stage.boardH - (4*Theme.paddingLarge)
             scale: stage.scale
