@@ -128,7 +128,7 @@ Page {
             spacing: Theme.paddingMedium
 
             Button {
-                width: (toolRow.width ) / 4
+                width: (toolRow.width ) / 6
                 icon.source: "image://theme/icon-m-restore"
                 text: qsTr("Undo")
                 visible: !page.isExpert
@@ -137,7 +137,7 @@ Page {
             }
 
             Button {
-                width: (toolRow.width ) / 4
+                width: (toolRow.width ) / 6
                 icon.source: "image://theme/icon-m-search"
                 text: qsTr("Hint")
                 visible: !page.isExpert
@@ -146,7 +146,7 @@ Page {
             }
 
             Button {
-                width: (toolRow.width ) / 4
+                width: (toolRow.width ) / 6
                 icon.source: "image://theme/icon-m-refresh"
                 text: qsTr("Shuffle")
                 visible: page.isEasy
@@ -155,11 +155,27 @@ Page {
             }
 
             Button {
-                width: (toolRow.width ) / 4
+                width: (toolRow.width ) / 6
                 icon.source: "image://theme/icon-m-cancel"
                 text: qsTr("Restart")
                 enabled: page.running || page.resultMsg !== ""
                 onClicked: page.newGame()
+            }
+
+            Button {
+                width: (toolRow.width ) / 6
+                icon.source: "image://theme/icon-m-minus"
+                text: qsTr("−")
+                enabled: tileModel.count > 0
+                onClicked: stage.zoomOut()
+            }
+
+            Button {
+                width: (toolRow.width ) / 6
+                icon.source: "image://theme/icon-m-plus"
+                text: qsTr("+")
+                enabled: tileModel.count > 0
+                onClicked: stage.zoomIn()
             }
         }
 
@@ -188,6 +204,7 @@ Page {
         property real userY: 0
         property real boardW: 1
         property real boardH: 1
+        property real contentW: 1    // unrotated board width, for the tile mapping
         property real minX: 0
         property real minY: 0
         readonly property real scale: fitScale * userScale
@@ -201,6 +218,13 @@ Page {
         function adjustFit() {
             if (boardW > 0 && boardH > 0 && width > 0 && height > 0)
                 fitScale = Math.min(width / boardW, height / boardH) * 0.98
+        }
+
+        function zoomIn() {
+            userScale = Math.min(4.0, userScale * 1.25)
+        }
+        function zoomOut() {
+            userScale = Math.max(0.5, userScale / 1.25)
         }
 
         Item {
@@ -217,16 +241,20 @@ Page {
 
                 delegate: Item {
                     id: tileDelegate
-                    width: Mah.TILE_W
-                    height: Mah.TILE_H
+                    // rotated footprint: wide = TILE_H, tall = TILE_W
+                    width: Mah.TILE_H
+                    height: Mah.TILE_W
                     x: tileModel.get(index).x
                     y: tileModel.get(index).y
                     z: tileModel.get(index).zsort
 
                     Rectangle {
                         id: face
-                        anchors.fill: parent
-                        anchors.margins: -1
+                        anchors.centerIn: parent
+                        width: Mah.TILE_W + 1
+                        height: Mah.TILE_H + 1
+                        rotation: -90
+                        transformOrigin: Item.Center
                         radius: 8
                         color: "#f4eeda"
                         border.width: tileModel.get(index).selected ? 5 : (tileModel.get(index).hinted ? 4 : 2)
@@ -237,6 +265,8 @@ Page {
                         anchors.centerIn: parent
                         width: Mah.TILE_W - 6
                         height: Mah.TILE_H - 6
+                        rotation: -90
+                        transformOrigin: Item.Center
                         source: tileModel.get(index).src
                         smooth: true
                         mipmap: true
@@ -264,8 +294,8 @@ Page {
                 var bestZ = -1
                 for (var i = 0; i < tileModel.count; i++) {
                     var t = tileModel.get(i)
-                    if (bx >= t.x && bx <= t.x + Mah.TILE_W &&
-                        by >= t.y && by <= t.y + Mah.TILE_H &&
+                    if (bx >= t.x && bx <= t.x + Mah.TILE_H &&
+                        by >= t.y && by <= t.y + Mah.TILE_W &&
                         t.zsort > bestZ) {
                         bestZ = t.zsort
                         best = t.idx
@@ -357,10 +387,14 @@ Page {
             if (s.picked)
                 continue
             var p = Mah.tilePos(s.z, s.x, s.y)
+            var u = p.px - stage.minX
+            var v = p.py - stage.minY
+            var W = stage.contentW
             tileModel.append({
                 idx: i,
-                x: p.px - stage.minX,
-                y: p.py - stage.minY,
+                // 90° CCW rotation: old top-left (u,v) -> (v, W - u - TILE_W)
+                x: v,
+                y: W - u - Mah.TILE_W,
                 zsort: p.zsort,
                 src: Mah.imageFor(s.v),
                 selected: g.selected === i,
@@ -387,8 +421,11 @@ Page {
         var box = Mah.boardBox(board.map)
         stage.minX = box.minx
         stage.minY = box.miny
-        stage.boardW = box.w
-        stage.boardH = box.h
+        // Board is drawn rotated 90° CCW (top edge becomes left edge) so the
+        // wide board fills the tall portrait window.
+        stage.boardW = box.h
+        stage.boardH = box.w
+        stage.contentW = box.w
         stage.resetView()
         stage.adjustFit()
         rebuildModel()
