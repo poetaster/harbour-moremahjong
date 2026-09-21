@@ -174,7 +174,7 @@ function imageFor(v) {
         else if (m[1] === "ba")
             suit = "bamboo"
         if (suit)
-            return assetBase() + "svg/classic/" + suit + "_" + m[2] + ".png"
+            return assetBase() + "svg/classic-rot/" + suit + "_" + m[2] + ".png"
     }
     m = s.match(/^([a-z]+)_([a-z]+)$/)
     if (m) {
@@ -188,7 +188,7 @@ function imageFor(v) {
         else if (m[1] === "dr")
             pref = "dragon"
         if (pref)
-            return assetBase() + "svg/classic/" + pref + "_" + m[2] + ".png"
+            return assetBase() + "svg/classic-rot/" + pref + "_" + m[2] + ".png"
     }
     return ""
 }

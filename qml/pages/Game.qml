@@ -22,6 +22,13 @@ Page {
     property string resultMsg: ""    // "" | "win" | "lose"
     property var resultScore: ({})
 
+    // Selection + hint are driven by these *signaled* properties (not by
+    // per-tile fields in the ListModel, which don't emit change signals).
+    // The tile delegates bind to them, so a change repaints only the borders
+    // instead of tearing down and rebuilding every tile (which was slow).
+    property int selectedIdx: -1     // game stone index of the selected tile
+    property var hintIdxs: []        // list of game stone indices that are hinted
+
     //MahData { id: mah }
 
     function refreshUndo() {
@@ -251,22 +258,20 @@ Page {
                     Rectangle {
                         id: face
                         anchors.centerIn: parent
-                        width: Mah.TILE_W + 1
-                        height: Mah.TILE_H + 1
-                        rotation: -90
-                        transformOrigin: Item.Center
+                        width: Mah.TILE_H + 1
+                        height: Mah.TILE_W + 1
                         radius: 8
                         color: "#f4eeda"
-                        border.width: tileModel.get(index).selected ? 5 : (tileModel.get(index).hinted ? 4 : 2)
-                        border.color: tileModel.get(index).selected ? "#ffc400"
-                                   : (tileModel.get(index).hinted ? "#00b7ff" : "rgba(60,50,30,0.55)")
+                        property bool sel: tileModel.get(index).idx === page.selectedIdx
+                        property bool hin: page.hintIdxs.indexOf(tileModel.get(index).idx) >= 0
+                        border.width: sel ? 5 : (hin ? 4 : 2)
+                        border.color: sel ? "#ffc400"
+                                   : (hin ? "#00b7ff" : "rgba(60,50,30,0.55)")
                     }
                     Image {
                         anchors.centerIn: parent
-                        width: Mah.TILE_W - 6
-                        height: Mah.TILE_H - 6
-                        rotation: -90
-                        transformOrigin: Item.Center
+                        width: Mah.TILE_H - 6
+                        height: Mah.TILE_W - 6
                         source: tileModel.get(index).src
                         smooth: true
                         mipmap: true
@@ -396,12 +401,47 @@ Page {
                 x: v,
                 y: W - u - Mah.TILE_W,
                 zsort: p.zsort,
-                src: Mah.imageFor(s.v),
-                selected: g.selected === i,
-                hinted: s.hinted
+                src: Mah.imageFor(s.v)
             })
         }
+        refreshFlags()
+    }
+
+    // Refresh only the selection/hint borders from the current game state.
+    // Cheap: it just reassigns two page properties (which repaint the
+    // delegate borders) instead of destroying and recreating every tile.
+    function refreshFlags() {
+        var g = page.game
+        if (!g) {
+            page.selectedIdx = -1
+            page.hintIdxs = []
+            return
+        }
+        page.selectedIdx = (g.selected >= 0) ? g.selected : -1
+        var h = []
+        if (g.stones)
+            for (var i = 0; i < g.stones.length; i++)
+                if (g.stones[i].hinted)
+                    h.push(i)
+        page.hintIdxs = h
         page.refreshUndo()
+    }
+
+    // Remove just the matched (picked) tiles from the model, instead of
+    // rebuilding the whole board. Fast: only two delegates are destroyed.
+    function removePickedTiles() {
+        var g = page.game
+        if (!g || !g.stones)
+            return
+        var toRemove = []
+        for (var i = 0; i < tileModel.count; i++) {
+            var s = g.stones[tileModel.get(i).idx]
+            if (s && s.picked)
+                toRemove.push(i)
+        }
+        for (var r = toRemove.length - 1; r >= 0; r--)
+            tileModel.remove(toRemove[r])
+        refreshFlags()
     }
 
 
@@ -447,6 +487,7 @@ Page {
         if (g.selected >= 0 && g.selected !== i
             && g.stones[g.selected].groupnr === s.groupnr) {
             Mah.pickPair(g, g.selected, i)
+            removePickedTiles()   // just drop the two matched tiles
             if (g.count < 2) {
                 gameOver(true)
                 return
@@ -462,9 +503,9 @@ Page {
             g.selected = (g.selected === i) ? -1 : i
             if (g.selected >= 0)
                 g.stones[i].selected = true
+            refreshFlags()   // only the selection border changed: cheap update
             sndSelect.play()
         }
-        rebuildModel()
     }
 
     function doUndo() {
@@ -478,7 +519,7 @@ Page {
         if (!page.running)
             return
         if (Mah.hint(page.game))
-            rebuildModel()
+            refreshFlags()
     }
 
     function doShuffle() {
@@ -493,7 +534,7 @@ Page {
         sndOver.play()
         page.resultMsg = won ? "win" : "lose"
         page.resultScore = Mah.recordGame(page.boardId, won, page.elapsedMs)
-        rebuildModel()
+        refreshFlags()
         gamePopup.show()
     }
 
