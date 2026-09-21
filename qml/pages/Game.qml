@@ -15,10 +15,10 @@ Page {
     readonly property bool isExpert: mode === "GAME_MODE_EXPERT"
     // How many bottom-bar buttons are visible in this mode, so the row can
     // size them to fill evenly instead of leaving an empty slot:
-    //   Easy:     Undo, Hint, Shuffle, Restart, -, +   = 6
-    //   Standard: Undo, Hint, Restart, -, +            = 5
-    //   Expert:   Restart, -, +                        = 4
-    readonly property int visibleBtns: isEasy ? 6 : (isExpert ? 4 : 5)
+    //   Easy:     Undo, Hint, Shuffle, Restart = 4
+    //   Standard: Undo, Hint, Restart          = 3
+    //   Expert:   Restart                      = 1
+    readonly property int visibleBtns: isEasy ? 4 : (isExpert ? 1 : 3)
 
     property var game: ({})          // engine state (see MahData.js)
     property string boardName: ""
@@ -177,22 +177,6 @@ Page {
                 enabled: page.running || page.resultMsg !== ""
                 onClicked: page.newGame()
             }
-
-            Button {
-                width: toolRow.btnW
-                icon.source: "image://theme/icon-m-minus"
-                text: qsTr("−")
-                enabled: tileModel.count > 0
-                onClicked: stage.zoomOut()
-            }
-
-            Button {
-                width: toolRow.btnW
-                icon.source: "image://theme/icon-m-plus"
-                text: qsTr("+")
-                enabled: tileModel.count > 0
-                onClicked: stage.zoomIn()
-            }
         }
 
         Rectangle {
@@ -215,32 +199,18 @@ Page {
         clip: true
 
         property real fitScale: 1
-        property real userScale: 1
-        property real userX: 0
-        property real userY: 0
         property real boardW: 1
         property real boardH: 1
         property real contentW: 1    // unrotated board width, for the tile mapping
         property real minX: 0
         property real minY: 0
-        readonly property real scale: fitScale * userScale
+        readonly property real scale: fitScale
 
-        function resetView() {
-            userScale = 1
-            userX = 0
-            userY = 0
-        }
-
+        // Fit the whole board into the stage at the largest size that fits,
+        // centered. There is no user zoom/pan: the board is always the best fit.
         function adjustFit() {
             if (boardW > 0 && boardH > 0 && width > 0 && height > 0)
-                fitScale = Math.min(width / boardW, height / boardH) * 0.98
-        }
-
-        function zoomIn() {
-            userScale = Math.min(4.0, userScale * 1.25)
-        }
-        function zoomOut() {
-            userScale = Math.max(0.5, userScale / 1.25)
+                fitScale = Math.min(width / boardW, height / boardH) * 0.90
         }
 
         Item {
@@ -250,10 +220,10 @@ Page {
             // anchored scale. With the default (center) origin every tap is
             // offset by (w/2)(1-s) in each axis.
             transformOrigin: ItemOrigin.TopLeft
-            x: (stage.width - boardItem.width * stage.scale) / 2 + stage.userX
-            y: (stage.height - boardItem.height * stage.scale) / 2 + stage.userY
-            width: stage.boardW
-            height: stage.boardH
+            x: ( stage.width - boardItem.width ) / 2 - 100
+            y: ( stage.height - boardItem.height ) / 2
+            width: stage.boardW - (4*Theme.paddingLarge)
+            height: stage.boardH - (4*Theme.paddingLarge)
             scale: stage.scale
 
             Repeater {
@@ -294,15 +264,12 @@ Page {
             }
         }
 
-        // Single input area over the whole stage: a tap picks a tile (the
-        // topmost tile under the pointer in paint order) and a drag pans.
+        // Input area over the whole stage: a tap picks the topmost tile
+        // under the pointer in paint order.
         MouseArea {
             id: stageMouse
             anchors.fill: parent
             z: 5
-            property real lastX: 0
-            property real lastY: 0
-            property real movedDist: 0
 
             function tileAtPoint(mx, my) {
                 if (stage.scale <= 0)
@@ -333,34 +300,11 @@ Page {
                 return best
             }
 
-            onPressed: {
-                lastX = mouseX
-                lastY = mouseY
-                movedDist = 0
-            }
-            onPositionChanged: {
-                if (pressed) {
-                    movedDist += Math.abs(mouseX - lastX) + Math.abs(mouseY - lastY)
-                    if (movedDist > 12) {
-                        stage.userX += mouseX - lastX
-                        stage.userY += mouseY - lastY
-                    }
-                    lastX = mouseX
-                    lastY = mouseY
-                }
-            }
             onClicked: {
-                if (movedDist <= 12) {
-                    var t = tileAtPoint(mouseX, mouseY)
-                    console.log("tap", mouseX.toFixed(1), mouseY.toFixed(1),
-                                " boardX", boardItem.x.toFixed(1),
-                                " boardY", boardItem.y.toFixed(1),
-                                " scale", stage.scale.toFixed(3), "-> tile", t)
-                    if (t >= 0)
-                        page.tileClicked(t)
-                }
+                var t = tileAtPoint(mouseX, mouseY)
+                if (t >= 0)
+                    page.tileClicked(t)
             }
-            onDoubleClicked: stage.resetView()
         }
     }
 
@@ -493,7 +437,6 @@ Page {
         stage.boardW = box.h
         stage.boardH = box.w
         stage.contentW = box.w
-        stage.resetView()
         stage.adjustFit()
         rebuildModel()
     }
