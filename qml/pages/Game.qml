@@ -13,6 +13,12 @@ Page {
     property string mode: "GAME_MODE_STANDARD"
     readonly property bool isEasy: mode === "GAME_MODE_EASY"
     readonly property bool isExpert: mode === "GAME_MODE_EXPERT"
+    // How many bottom-bar buttons are visible in this mode, so the row can
+    // size them to fill evenly instead of leaving an empty slot:
+    //   Easy:     Undo, Hint, Shuffle, Restart, -, +   = 6
+    //   Standard: Undo, Hint, Restart, -, +            = 5
+    //   Expert:   Restart, -, +                        = 4
+    readonly property int visibleBtns: isEasy ? 6 : (isExpert ? 4 : 5)
 
     property var game: ({})          // engine state (see MahData.js)
     property string boardName: ""
@@ -133,9 +139,12 @@ Page {
             anchors.centerIn: parent
             width: parent.width - 2 * Theme.paddingMedium
             spacing: Theme.paddingMedium
+            // Size each visible button so they fill the row exactly (the Row
+            // skips invisible buttons), instead of reserving 6 equal slots.
+            property real btnW: (width - (page.visibleBtns - 1) * spacing) / page.visibleBtns
 
             Button {
-                width: (toolRow.width ) / 6
+                width: toolRow.btnW
                 icon.source: "image://theme/icon-m-restore"
                 text: qsTr("Undo")
                 visible: !page.isExpert
@@ -144,7 +153,7 @@ Page {
             }
 
             Button {
-                width: (toolRow.width ) / 6
+                width: toolRow.btnW
                 icon.source: "image://theme/icon-m-search"
                 text: qsTr("Hint")
                 visible: !page.isExpert
@@ -153,7 +162,7 @@ Page {
             }
 
             Button {
-                width: (toolRow.width ) / 6
+                width: toolRow.btnW
                 icon.source: "image://theme/icon-m-refresh"
                 text: qsTr("Shuffle")
                 visible: page.isEasy
@@ -162,7 +171,7 @@ Page {
             }
 
             Button {
-                width: (toolRow.width ) / 6
+                width: toolRow.btnW
                 icon.source: "image://theme/icon-m-cancel"
                 text: qsTr("Restart")
                 enabled: page.running || page.resultMsg !== ""
@@ -170,7 +179,7 @@ Page {
             }
 
             Button {
-                width: (toolRow.width ) / 6
+                width: toolRow.btnW
                 icon.source: "image://theme/icon-m-minus"
                 text: qsTr("−")
                 enabled: tileModel.count > 0
@@ -178,7 +187,7 @@ Page {
             }
 
             Button {
-                width: (toolRow.width ) / 6
+                width: toolRow.btnW
                 icon.source: "image://theme/icon-m-plus"
                 text: qsTr("+")
                 enabled: tileModel.count > 0
@@ -236,6 +245,11 @@ Page {
 
         Item {
             id: boardItem
+            // Scale about the top-left corner, NOT the default center: the
+            // x/y centering formula and the hit test both assume a top-left
+            // anchored scale. With the default (center) origin every tap is
+            // offset by (w/2)(1-s) in each axis.
+            transformOrigin: ItemOrigin.TopLeft
             x: (stage.width - boardItem.width * stage.scale) / 2 + stage.userX
             y: (stage.height - boardItem.height * stage.scale) / 2 + stage.userY
             width: stage.boardW
@@ -293,8 +307,18 @@ Page {
             function tileAtPoint(mx, my) {
                 if (stage.scale <= 0)
                     return -1
-                var bx = (mx - boardItem.x) / stage.scale
-                var by = (my - boardItem.y) / stage.scale
+                // Map through the item's *actual* transform (mapFromItem
+                // honors transformOrigin), instead of assuming a top-left
+                // anchored scale. Fallback: manual top-left math.
+                var bx, by
+                try {
+                    var p = boardItem.mapFromItem(stage, mx, my)
+                    bx = p.x
+                    by = p.y
+                } catch (e) {
+                    bx = (mx - boardItem.x) / stage.scale
+                    by = (my - boardItem.y) / stage.scale
+                }
                 var best = -1
                 var bestZ = -1
                 for (var i = 0; i < tileModel.count; i++) {
@@ -328,7 +352,10 @@ Page {
             onClicked: {
                 if (movedDist <= 12) {
                     var t = tileAtPoint(mouseX, mouseY)
-                    console.log("tap at", mouseX, mouseY, " -> tile", t)
+                    console.log("tap", mouseX.toFixed(1), mouseY.toFixed(1),
+                                " boardX", boardItem.x.toFixed(1),
+                                " boardY", boardItem.y.toFixed(1),
+                                " scale", stage.scale.toFixed(3), "-> tile", t)
                     if (t >= 0)
                         page.tileClicked(t)
                 }
