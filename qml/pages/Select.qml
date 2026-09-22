@@ -13,6 +13,26 @@ Page {
     property var scores: []
     property string mode: "GAME_MODE_STANDARD"
 
+    // Pending Game push, performed once the "Loading..." label has painted.
+    // A synchronous pageStack.push never leaves a render pass for the label.
+    property var pendingBoard: null
+    property string pendingBoardId: ""
+
+    Timer {
+        id: pushTimer
+        interval: 150
+        repeat: false
+        onTriggered: {
+            var b = page.pendingBoard
+            var bid = page.pendingBoardId
+            page.pendingBoard = null
+            page.pendingBoardId = ""
+            if (b) {
+                pageStack.push("Game.qml", { board: b, boardId: bid, mode: page.mode })
+            }
+        }
+    }
+
     readonly property real thumbW: page.width / 2
     readonly property real thumbH: page.width / 2
     readonly property real cardH: page.width / 2 + Theme.paddingLarge
@@ -31,14 +51,21 @@ Page {
 
     function timeText(bid) {
         var s = page.scores ? page.scores[String(bid)] : undefined
-        if (!s)https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-pagestack.html/
+        if (!s)
             return qsTr("")
         var t = s.bestTime > 0 ?
             qsTr("Best %1").arg(Mah.formatTime(s.bestTime)) :
             qsTr("No win yet")
         return t
     }
-
+    BusyIndicator {
+        z:100
+        id:busy
+        running:  false
+        //text:qsTr("Composing...")
+        anchors.centerIn: parent
+        size: BusyIndicatorSize.Large
+    }
     SilicaFlickable {
         id: flickable
         anchors.fill: parent
@@ -54,11 +81,7 @@ Page {
             PageHeader {
                 title: qsTr("Boards")
             }
-            Label {
-                id:busy
-                visible:  false
-                text:qsTr("Loading...")
-            }
+
             ComboBox {
                 id: modeControl
                 width: parent.width - 2 * Theme.paddingLarge
@@ -105,8 +128,10 @@ Page {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    busy.visible = true
-                    pageStack.push("Game.qml", { board: boards[index], boardId: String(boards[index].id), mode: page.mode })
+                    busy.running = true
+                    page.pendingBoard = boards[index]
+                    page.pendingBoardId = String(boards[index].id)
+                    pushTimer.start()
                 }
             }
 
@@ -211,11 +236,8 @@ Page {
     // Scores are read fresh from the database on activating
     onStatusChanged: {
         if (page.status == PageStatus.Activating) {
-            busy.visible = false
+            busy.running = false
             page.refreshScores()
-        }
-        if (page.status == PageStatus.Deactivating) {
-            busy.visible = true
         }
     }
 }

@@ -17,6 +17,32 @@ Page {
         }
 }
     allowedOrientations: Orientation.All
+
+    // Which Select push to perform once the "Loading..." label has painted.
+    // "" = idle; "play" = plain push; otherwise the theme name.
+    property string pendingTheme: ""
+
+    // A synchronous pageStack.push never leaves a render pass to paint the
+    // busy label before the transition covers the page, so the label only
+    // appears near the end of the push. Deferring the push by one beat lets
+    // the label paint first (and also absorbs fast double-taps into one push).
+    Timer {
+        id: pushTimer
+        interval: 150
+        repeat: false
+        onTriggered: {
+            var t = view.pendingTheme
+            view.pendingTheme = ""
+            if (t === "play") {
+                pageStack.push("Select.qml", {boards: view.boards, scores: view.scores})
+            } else if (t !== "") {
+                DB.setTheme(t)
+                pageStack.push("Select.qml", {boards: view.boards, scores: view.scores, theme: t})
+            }
+        }
+    }
+
+
     SilicaFlickable {
         anchors.fill: parent
         PageHeader {
@@ -42,8 +68,17 @@ Page {
         }
 
         SectionHeader {
+            id: header
                 text: qsTr("Select Style")
                 anchors.bottom: selectSection.top
+        }
+        BusyIndicator {
+            z:10
+            id:busy
+            running:  false
+            anchors.bottom:header.top
+            anchors.left:header.left
+            size: BusyIndicatorSize.Large
         }
         Column {
             id: selectSection
@@ -62,9 +97,9 @@ Page {
                     fillMode: Image.PreserveAspectCrop
                 }
                 onClicked: {
-                    busy.visible = true
-                    DB.setTheme("picasso")
-                    pageStack.push("Select.qml",{boards: view.boards,scores:view.scores, theme:style})
+                    busy.running = true
+                    view.pendingTheme = "picasso"
+                    pushTimer.start()
                 }
             }
             BackgroundItem {
@@ -78,9 +113,9 @@ Page {
 
                 }
                 onClicked: {
-                    busy.visible = true
-                    DB.setTheme("classic")
-                    pageStack.push("Select.qml",{boards: view.boards,scores:view.scores, theme:style})
+                    busy.running = true
+                    view.pendingTheme = "classic"
+                    pushTimer.start()
                 }
             }
             BackgroundItem {
@@ -94,8 +129,8 @@ Page {
                 }
                 onClicked: {
                     busy.visible = true
-                    DB.setTheme("recri")
-                    pageStack.push("Select.qml",{boards: view.boards,scores:view.scores, theme:style})
+                    view.pendingTheme = "recri"
+                    pushTimer.start()
                 }
             }
             BackgroundItem {
@@ -105,20 +140,19 @@ Page {
                 Button {
                     width: parent.width
                     text: qsTr("Play")
-                    onClicked: pageStack.push("Select.qml",{boards: view.boards,scores:view.scores})
+                    onClicked: {
+                        busy.running = true
+                        view.pendingTheme = "play"
+                        pushTimer.start()
+                    }
                 }
-            }
-            Label {
-                id:busy
-                visible:  false
-                text: qsTr("Loading...")
             }
 
         }
     }
 
     onStatusChanged: {
-            busy.visible = false
+            busy.running = false
     }
 
     Component.onCompleted: {// Load all board definitions from assets/data/boards.json.
