@@ -28,10 +28,6 @@ Page {
     property string resultMsg: ""    // "" | "win" | "lose"
     property var resultScore: ({})
 
-    // Selection + hint are driven by these *signaled* properties (not by
-    // per-tile fields in the ListModel, which don't emit change signals).
-    // The tile delegates bind to them, so a change repaints only the borders
-    // instead of tearing down and rebuilding every tile (which was slow).
     property int selectedIdx: -1     // game stone index of the selected tile
     property var hintIdxs: []        // list of game stone indices that are hinted
 
@@ -42,10 +38,10 @@ Page {
     }
 
     // ---- sounds ----------------------------------------------------------
-    SoundEffect { id: sndSelect; source: "../mah/assets/sounds/select.ogg" }
-    SoundEffect { id: sndMatch; source: "../mah/assets/sounds/match.ogg" }
-    SoundEffect { id: sndInvalid; source: "../mah/assets/sounds/invalid.ogg" }
-    SoundEffect { id: sndOver; source: "../mah/assets/sounds/over.ogg" }
+    SoundEffect { id: sndSelect; source: "../mah/assets/sounds/select.wav" }
+    SoundEffect { id: sndMatch; source: "../mah/assets/sounds/match.wav" }
+    SoundEffect { id: sndInvalid; source: "../mah/assets/sounds/invalid.wav" }
+    SoundEffect { id: sndOver; source: "../mah/assets/sounds/over.wav" }
 
     // ---- clock -----------------------------------------------------------
     Timer {
