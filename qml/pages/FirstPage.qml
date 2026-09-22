@@ -8,7 +8,6 @@ Page {
     property var boards:[]
     property string style: {
         var thisTheme = DB.getTheme()
-        console.log(thisTheme.value)
         if (thisTheme === undefined ) {
             DB.setTheme("picasso")
             Mah.setTheme("picasso")
@@ -41,6 +40,7 @@ Page {
             }
 
         }
+
         SectionHeader {
                 text: qsTr("Select Style")
                 anchors.bottom: selectSection.top
@@ -50,11 +50,11 @@ Page {
             anchors.centerIn: parent
             anchors.horizontalCenter: parent.horizontalCenter
             width: parent.width
-            spacing: 320
+            spacing: 300
 
             BackgroundItem {
                 id:thOne
-                contentHeight: 320
+                contentHeight: 300
                 Image {
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: parent.width - Theme.paddingLarge
@@ -62,15 +62,14 @@ Page {
                     fillMode: Image.PreserveAspectCrop
                 }
                 onClicked: {
+                    busy.visible = true
                     DB.setTheme("picasso")
-                    view.style = "picasso"
-                    Mah.setTheme("picasso")
                     pageStack.push("Select.qml",{boards: view.boards,scores:view.scores, theme:style})
                 }
             }
             BackgroundItem {
                 id:thTwo
-                contentHeight: 320//Theme.itemSizeExtraLarge
+                contentHeight: 300//Theme.itemSizeExtraLarge
                 Image {
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: parent.width - Theme.paddingLarge
@@ -79,15 +78,14 @@ Page {
 
                 }
                 onClicked: {
+                    busy.visible = true
                     DB.setTheme("classic")
-                    view.style = "classic"
-                    Mah.setTheme("classic")
                     pageStack.push("Select.qml",{boards: view.boards,scores:view.scores, theme:style})
                 }
             }
             BackgroundItem {
                 id:thThree
-                contentHeight: 320//Theme.itemSizeExtraLarge
+                contentHeight: 300//Theme.itemSizeExtraLarge
                 Image {
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: parent.width - Theme.paddingLarge
@@ -95,9 +93,8 @@ Page {
                     fillMode: Image.PreserveAspectCrop
                 }
                 onClicked: {
+                    busy.visible = true
                     DB.setTheme("recri")
-                    view.style = "recri"
-                    Mah.setTheme("recri")
                     pageStack.push("Select.qml",{boards: view.boards,scores:view.scores, theme:style})
                 }
             }
@@ -111,10 +108,18 @@ Page {
                     onClicked: pageStack.push("Select.qml",{boards: view.boards,scores:view.scores})
                 }
             }
+            Label {
+                id:busy
+                visible:  false
+                text: qsTr("Loading...")
+            }
 
         }
     }
 
+    onStatusChanged: {
+            busy.visible = false
+    }
 
     Component.onCompleted: {// Load all board definitions from assets/data/boards.json.
         function loadBoards() {

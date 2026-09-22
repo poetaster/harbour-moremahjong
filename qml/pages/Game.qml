@@ -477,7 +477,6 @@ Page {
     Component.onCompleted: {
         var theme = DB.getTheme();
         if (theme !== undefined) Mah.setTheme( theme.value )
-        console.log(JSON.stringify(theme))
         newGame()
     }
     onStatusChanged: {

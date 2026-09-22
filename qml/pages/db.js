@@ -196,7 +196,6 @@ function setTheme(theme){
     var row = undefined;
     var r = undefined;
     r =  simpleQuery(query, [theme]);
-    console.log(JSON.stringify(r))
     if (r > 0) return 1;
     return "classic"
 }

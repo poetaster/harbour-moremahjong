@@ -54,7 +54,11 @@ Page {
             PageHeader {
                 title: qsTr("Boards")
             }
-
+            Label {
+                id:busy
+                visible:  false
+                text:qsTr("Loading...")
+            }
             ComboBox {
                 id: modeControl
                 width: parent.width - 2 * Theme.paddingLarge
@@ -100,7 +104,10 @@ Page {
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: pageStack.push("Game.qml", { board: boards[index], boardId: String(boards[index].id), mode: page.mode })
+                onClicked: {
+                    busy.visible = true
+                    pageStack.push("Game.qml", { board: boards[index], boardId: String(boards[index].id), mode: page.mode })
+                }
             }
 
             Row {
@@ -204,8 +211,11 @@ Page {
     // Scores are read fresh from the database on activating
     onStatusChanged: {
         if (page.status == PageStatus.Activating) {
+            busy.visible = false
             page.refreshScores()
         }
-
+        if (page.status == PageStatus.Deactivating) {
+            busy.visible = true
+        }
     }
 }
