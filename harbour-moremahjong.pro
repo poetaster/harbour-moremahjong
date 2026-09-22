@@ -22,6 +22,7 @@ DISTFILES += \
     qml/pages/FirstPage.qml \
     qml/pages/Game.qml \
     qml/pages/MahData.js \
+    qml/pages/db.js \
     qml/pages/Select.qml \
     qml/mah/* \
     qml/mah/assets/* \

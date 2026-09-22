@@ -565,57 +565,8 @@ function shuffleGame(g) {
     return updateGame(g)
 }
 
-// ---------------------------------------------------------------------------
-// Per-board scores (play count / best time) in a small JSON file.
-// Replaces the localStorage based storage of the original app.
-// ---------------------------------------------------------------------------
-
-function scoresPath() {
-    return;
-
-    var base = Qt.application ? Qt.application.storageLocation : ""
-    if (!base)
-        base = "."
-    return base + "/mah-scores.json"
-}
-
-function loadScores() {
-    return {}; // scores storage stubbed out; no persisted scores yet
-   // var resp = Qt.openUrlFromFile(Qt.resolvedUrl(scoresPath()))
-    if (resp && resp.data !== undefined) {
-        var d = resp.data
-        if (typeof d === "string")
-            try { return JSON.parse(d) } catch (err) { return {} }
-        if (d && typeof d === "object")
-            return d
-    }
-    return {}
-}
-
-function saveScores(scores) {
-    return;
-    var f = open(scoresPath(), "w")
-    f.write(JSON.stringify(scores))
-    f.close()
-}
-
-// Record a finished game; returns the (updated) score object for the board.
-function recordGame(boardId, won, timeMs) {
-    var scores = loadScores()
-    var id = String(boardId)
-    var s = scores[id] || { playCount: 0, bestTime: -1 }
-    s.playCount = (s.playCount || 0) + 1
-    if (won && timeMs >= 0 && (s.bestTime < 0 || s.bestTime > timeMs))
-        s.bestTime = timeMs
-    scores[id] = s
-    saveScores(scores)
-    return s
-}
-
-function bestTimeFor(boardId) {
-    var s = loadScores()[String(boardId)]
-    return s && s.bestTime ? s.bestTime : -1
-}
+// Per-board scores (play count / best time) live in db.js (localStorage
+// based); import it from QML with:  import "db.js" as DB
 
 // In-place Fisher-Yates shuffle.
 function shuffle(arr) {

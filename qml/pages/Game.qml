@@ -2,6 +2,7 @@ import QtQuick 2.6
 import Sailfish.Silica 1.0
 import QtMultimedia 5.0
 import "MahData.js" as Mah
+import "db.js" as DB
 
 Page {
     id: page
@@ -105,7 +106,7 @@ Page {
                 opacity: 0.85
                 font.pixelSize: Theme.fontSizeSmall
                 text: {
-                    var bt = Mah.bestTimeFor(page.boardId)
+                    var bt = DB.bestTimeFor(page.boardId)
                     return bt > 0 ? qsTr("Best %1").arg(Mah.formatTime(bt)) : ""
                 }
             }
@@ -499,7 +500,7 @@ Page {
         page.running = false
         sndOver.play()
         page.resultMsg = won ? "win" : "lose"
-        page.resultScore = Mah.recordGame(page.boardId, won, page.elapsedMs)
+        page.resultScore = DB.recordGame(page.boardId, won, page.elapsedMs)
         refreshFlags()
         gamePopup.show()
     }

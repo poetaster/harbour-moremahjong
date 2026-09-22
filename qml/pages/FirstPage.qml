@@ -1,6 +1,7 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
 import "MahData.js" as Mah
+import "db.js" as DB
 Page {
     id: view
     property var scores:[]
@@ -66,6 +67,6 @@ Page {
     }
 
     loadBoards()
-    scores = Mah.loadScores()
+    scores = DB.loadScores()
     }
 }
