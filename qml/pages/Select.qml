@@ -1,27 +1,42 @@
 import QtQuick 2.6
 import Sailfish.Silica 1.0
-import "."
 import "MahData.js" as Mah
+import "db.js" as DB
 Page {
     id: page
 
+    allowedOrientations: Orientation.All
+
+    property bool debug: false
     property var boards
+    property var theme
     property var scores: []
     property string mode: "GAME_MODE_STANDARD"
 
-    readonly property real thumbW: 320
-    readonly property real thumbH: 320
-    readonly property real cardH: 384
+    readonly property real thumbW: page.width / 2
+    readonly property real thumbH: page.width / 2
+    readonly property real cardH: page.width / 2 + Theme.paddingLarge
 
+
+    function refreshScores() {
+        page.scores = DB.loadScores()
+    }
 
     function statsText(bid) {
         var s = page.scores ? page.scores[String(bid)] : undefined
         if (!s)
             return qsTr("Not played yet")
+        return (s.playCount || 0) + qsTr(" plays")
+    }
+
+    function timeText(bid) {
+        var s = page.scores ? page.scores[String(bid)] : undefined
+        if (!s)https://sailfishos.org/develop/docs/silica/qml-sailfishsilica-sailfish-silica-pagestack.html/
+            return qsTr("")
         var t = s.bestTime > 0 ?
             qsTr("Best %1").arg(Mah.formatTime(s.bestTime)) :
             qsTr("No win yet")
-        return t + "  ·  " + (s.playCount || 0) + qsTr(" plays")
+        return t
     }
 
     SilicaFlickable {
@@ -114,7 +129,7 @@ Page {
                             radius: 2
                             color: "#efe7cf"
                             border.width: 1
-                            border.color: Theme.highlightColor
+                            border.color: "#000000"//Theme.secondaryColor
                         }
                     }
                 }
@@ -134,7 +149,7 @@ Page {
                     Label {
                         opacity: 0.85
                         font.pixelSize: Theme.fontSizeSmall
-                        text: (card.preview ? card.preview.count : 0) + qsTr(" tiles")
+                        text: page.timeText(boards[index].id)
                     }
                     Label {
                         width: parent.width
@@ -150,26 +165,26 @@ Page {
                     //console.error("id " + boards[index].id + " name:" + boards[index].name )
                     card.preview = Mah.previewTiles(boards[index].map, page.thumbW, page.thumbH)
                 } catch (err) {
-                    console.error("preview failed for board " + boards[index].id + ": " + err)
+                    if (debug) console.error("preview failed for board " + boards[index].id + ": " + err)
                 }
             }
         }
     }
     Component.onCompleted: {
-                console.log("T=", typeof boards, " L=", boards.length,
-                            " 0=", typeof boards[0],
-                            " S=", JSON.stringify(boards[0]).substring(0, 100))
                 // Use the pushed list only if its entries are real objects;
-                // otherwise load the data file ourselves.
+                // otherwise load again
                 var ok = false
                 if (boards && boards.length > 0) {
                     var b0 = boards[0]
                     ok = b0 !== null && typeof b0 === "object" && b0.map !== undefined
                 }
-                if (ok)
-                    console.log("Select: using pushed boards, " + boards.length)
-                else
+                if (ok) {
+                    if (debug) console.log("Select: using pushed boards, " + boards.length)
+                } else {
                     loadBoards()
+                }
+
+                page.refreshScores()
             }
 
             function loadBoards() {
@@ -178,11 +193,19 @@ Page {
                     try {
                         arr = JSON.parse(doc.responseText)
                     } catch (err) {
-                        console.error("Select: boards.json parse failed: " + err)
+                        if (debug) console.error("Select: boards.json parse failed: " + err)
                         return
                     }
                     page.boards = arr
-                    console.log("Select: loaded " + (arr.length ? arr.length : 0) + " boards from file")
+                    if (debug) console.log("Select: loaded " + (arr.length ? arr.length : 0) + " boards from file")
                 })
             }
+
+    // Scores are read fresh from the database on activating
+    onStatusChanged: {
+        if (page.status == PageStatus.Activating) {
+            page.refreshScores()
+        }
+
+    }
 }

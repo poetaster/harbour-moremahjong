@@ -1,8 +1,25 @@
+/*
+ * This file is part of harbour-moremahjong.
+ * Copyright (C) 2026  blueprint@poetaster.de based on code from
+ *
+ * This is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with harbour-dwd.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+.pragma library
+
 // Shared helpers for the QML port of mah (https://ffalt.github.io/mah).
-// Instantiate from QML:
-//     import "."
-//     MahData { id: mah }
-//
 // The geometry, blocking and tile rules mirror the original JS sources
 // (webpack modules 1344, 2878, 3378, 5050, 8219 in qml/mah/main.*.js):
 //   tile size   75 x 100
@@ -12,6 +29,7 @@
 //   a tile is blocked if a stone rests on top of it, or stones rest on
 //   both its left and right side.
 
+var theme = "picasso" // default theme set setTheme
 var TILE_W = 75
 var TILE_H = 100
 var MY = 18
@@ -57,6 +75,13 @@ var TILE_GROUPS = [
     ["t_dr_white", "t_dr_white", "t_dr_white", "t_dr_white"],
     ["t_dr_red", "t_dr_red", "t_dr_red", "t_dr_red"]
 ]
+function setTheme(style) {
+   theme = style;
+    console.log(style)
+}
+function getTheme() {
+   return theme;
+}
 
 function assetBase() {
     return Qt.resolvedUrl("../mah/assets/").toString()
@@ -158,6 +183,7 @@ function tilesFor(count) {
 }
 
 // Map a tile id to the matching classic png (absolute file url).
+// also works for prepared picasso-rot, recri-rot sets
 function imageFor(v) {
     if (!v)
         return ""
@@ -174,9 +200,7 @@ function imageFor(v) {
         else if (m[1] === "ba")
             suit = "bamboo"
         if (suit)
-            //return assetBase() + "svg/classic-rot/" + suit + "_" + m[2] + ".png"
-            //return assetBase() + "svg/recri-rot/" + suit + "_" + m[2] + ".png"
-            return assetBase() + "svg/picasso-rot/" + suit + "_" + m[2] + ".png"
+            return assetBase() + "svg/" + theme + "-rot/" + suit + "_" + m[2] + ".png"
     }
     m = s.match(/^([a-z]+)_([a-z]+)$/)
     if (m) {
@@ -190,15 +214,13 @@ function imageFor(v) {
         else if (m[1] === "dr")
             pref = "dragon"
         if (pref)
-            //return assetBase() + "svg/classic-rot/" + pref + "_" + m[2] + ".png"
-            //return assetBase() + "svg/recri-rot/" + pref + "_" + m[2] + ".png"
-            return assetBase() + "svg/picasso-rot/" + pref + "_" + m[2] + ".png"
+            return assetBase() + "svg/" + theme + "-rot/" + pref + "_" + m[2] + ".png"
     }
     return ""
 }
 
 // ---------------------------------------------------------------------------
-// Game engine (ported from webpack modules 5050, 3378, 4678, 5405, 6779).
+// Game engine (from mah webpack modules 5050, 3378, 4678, 5405, 6779).
 // A game state `g` looks like:
 //   { stones: [{z,x,y,v,groupnr,picked,blocked,removable,hinted}],
 //     nb:     [{left,right,top,bottom} per stone, neighbor indices],
@@ -348,9 +370,7 @@ function solveOnce(stones, nb, groups, slots) {
 }
 
 // Deal a new board: solvable random assignment of tiles to the slots
-// (modules 4678/5405), falling back to a pure random assignment.
-// Like the original, the pair queue is drawn from the full 36-group set
-// even for boards with fewer than 144 stones.
+// (modules 4678/5405 mah), falling back to a pure random assignment.
 function dealBoard(board) {
     var slots = parseBoard(board.map)
     var tiles = tilesFor(slots.length)
@@ -565,8 +585,6 @@ function shuffleGame(g) {
     return updateGame(g)
 }
 
-// Per-board scores (play count / best time) live in db.js (localStorage
-// based); import it from QML with:  import "db.js" as DB
 
 // In-place Fisher-Yates shuffle.
 function shuffle(arr) {
@@ -600,10 +618,10 @@ function previewTiles(map, fitW, fitH) {
     // 4px gap between tiles: shrink each tile by 4px, centered in its cell.
     for (i = 0; i < pts.length; i++)
         tiles.push({
-            x: (pts[i].px - minx) * sc + 2,
-            y: (pts[i].py - miny) * sc + 2,
-            w: Math.max(1, TILE_W * sc - 4),
-            h: Math.max(1, TILE_H * sc - 4),
+            x: (pts[i].px - minx) * sc + 1,
+            y: (pts[i].py - miny) * sc + 1,
+            w: Math.max(1, TILE_W * sc - 2),
+            h: Math.max(1, TILE_H * sc - 2),
             zsort: pts[i].zsort
         })
     // Paint order: same z-index scheme as the original 2D renderer.

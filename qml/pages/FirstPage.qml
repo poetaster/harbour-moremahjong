@@ -6,67 +6,128 @@ Page {
     id: view
     property var scores:[]
     property var boards:[]
-
+    property string style: {
+        var thisTheme = DB.getTheme()
+        console.log(thisTheme.value)
+        if (thisTheme === undefined ) {
+            DB.setTheme("picasso")
+            Mah.setTheme("picasso")
+            return "picasso"
+        } else {
+            return thisTheme.value
+        }
+}
     allowedOrientations: Orientation.All
+    SilicaFlickable {
+        anchors.fill: parent
+        PageHeader {
+            title: qsTr("Mah Solitaire")
+        }
+        PullDownMenu {
+            id: mainPulleyMenu
+            MenuItem {
+                text: qsTr("About")
+                visible: ! parent.profilePage
+                onClicked: {
+                    pageStack.push(Qt.resolvedUrl("About.qml"), {})
+                }
+            }
+            MenuItem {
+                text: qsTr("WebView")
+                visible: ! parent.profilePage
+                onClicked: {
+                    pageStack.push(Qt.resolvedUrl("WebView.qml"), {})
+                }
+            }
 
-    PageHeader {
-        title: qsTr("Mah Solitaire")
-    }
-
-    Column {
-        anchors.centerIn: parent
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: Math.min(parent.width - 2 * Theme.paddingLarge, 420)
-        spacing: Theme.paddingLarge
-
-        Image {
+        }
+        SectionHeader {
+                text: qsTr("Select Style")
+                anchors.bottom: selectSection.top
+        }
+        Column {
+            id: selectSection
+            anchors.centerIn: parent
             anchors.horizontalCenter: parent.horizontalCenter
-            width: 128
-            height: 128
-            source: "/usr/share/icons/hicolor/128x128/apps/harbour-moremahjong.png"
-        }
-
-        Button {
             width: parent.width
-            text: qsTr("Play")
-            onClicked: pageStack.push("Select.qml",{boards: view.boards,scores:view.scores})
-        }
+            spacing: 320
 
-        Button {
-            width: parent.width
-            text: qsTr("About")
-            onClicked: pageStack.push("About.qml")
+            BackgroundItem {
+                id:thOne
+                contentHeight: 320
+                Image {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width - Theme.paddingLarge
+                    source: Qt.resolvedUrl("picasso.png")
+                    fillMode: Image.PreserveAspectCrop
+                }
+                onClicked: {
+                    DB.setTheme("picasso")
+                    view.style = "picasso"
+                    Mah.setTheme("picasso")
+                    pageStack.push("Select.qml",{boards: view.boards,scores:view.scores, theme:style})
+                }
+            }
+            BackgroundItem {
+                id:thTwo
+                contentHeight: 320//Theme.itemSizeExtraLarge
+                Image {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width - Theme.paddingLarge
+                    source: Qt.resolvedUrl("classic.png")
+                    fillMode: Image.PreserveAspectCrop
+
+                }
+                onClicked: {
+                    DB.setTheme("classic")
+                    view.style = "classic"
+                    Mah.setTheme("classic")
+                    pageStack.push("Select.qml",{boards: view.boards,scores:view.scores, theme:style})
+                }
+            }
+            BackgroundItem {
+                id:thThree
+                contentHeight: 320//Theme.itemSizeExtraLarge
+                Image {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width - Theme.paddingLarge
+                    source: Qt.resolvedUrl("recri.png")
+                    fillMode: Image.PreserveAspectCrop
+                }
+                onClicked: {
+                    DB.setTheme("recri")
+                    view.style = "recri"
+                    Mah.setTheme("recri")
+                    pageStack.push("Select.qml",{boards: view.boards,scores:view.scores, theme:style})
+                }
+            }
+            BackgroundItem {
+                id:thFour
+                //contentHeight: Theme.itemSizeExtraLarge
+
+                Button {
+                    width: parent.width
+                    text: qsTr("Play")
+                    onClicked: pageStack.push("Select.qml",{boards: view.boards,scores:view.scores})
+                }
+            }
+
         }
     }
 
 
     Component.onCompleted: {// Load all board definitions from assets/data/boards.json.
-    function loadBoards() {
-        var response; // Qt.ope (Qt.resolvedUrl("../mah/assets/data/boards.json"))
-        var out = []
-        Mah.loadJSON("../mah/assets/data/boards.json", function(doc) {
-            response = JSON.parse(doc.responseText);
-            //var arr = resp.data
-            for (var i = 0; i < response.length ; i++) {
-                //page.boards.push({ id: response[i].id, name: response[i].name, map: response[i].map })
-                 //boards.append(response[i]);
-                 boards[i] = response[i];
-               // console.debug(JSON.stringify(boards[i].name))
-            };
-            //return out
-        });
-        //if (!resp || resp.data === undefined)
-        //    return []
-        //var arr = resp.data
-        //if (typeof arr === "string")
-        //    arr = JSON.parse(arr)
-        //for (var i = 0; i < arr.length; i++)
-        //    out.push({ bid: arr[i].id, name: arr[i].name, map: arr[i].map })
-
-        //return out
-    }
-
-    loadBoards()
-    scores = DB.loadScores()
+        function loadBoards() {
+            var response;
+            var out = []
+            Mah.loadJSON("../mah/assets/data/boards.json", function(doc) {
+                response = JSON.parse(doc.responseText);
+                for (var i = 0; i < response.length ; i++) {
+                    boards[i] = response[i];
+                };
+            });
+        }
+        loadBoards()
+        scores = DB.loadScores()
     }
 }

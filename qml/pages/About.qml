@@ -4,58 +4,87 @@ import Sailfish.Silica 1.0
 Page {
     id: page
 
-    SilicaFlickable {
-        id: flickable
-        anchors.fill: parent
-        contentHeight: column.height
-
-        VerticalScrollDecorator { flickable: flickable }
-
         Column {
             id: column
-
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width - (2 * Theme.paddingLarge)
+            //anchors.fill: parent
+            x: 3 * Theme.paddingLarge
+            width: parent.width - (5 * Theme.paddingLarge )
             spacing: Theme.paddingLarge
 
             PageHeader {
                 title: qsTr("Mah Solitaire")
             }
-            Label {
-                width: parent.width - (2 * Theme.paddingLarge)
-                wrapMode: Text.WrapWord
-                text: ""
+            Item {
+                width: 1
+                height: 3 * Theme.paddingLarge
             }
+
             Label {
-                anchors.centerIn: parent
-                text: qsTr("Based on") + "\n https://ffalt.github.io/mah. \n " +
-                                  "© 2021 Mark Washeim \n" +
-                                  qsTr("MIT license.")
+                text: qsTr("Based on") + "<a href=\"https://ffalt.github.io/mah\"> mah ffalt.github.io</a>"
                 color: Theme.primaryColor
                 wrapMode: TextEdit.WordWrap
                 width: parent.width
-            }
-            Label {
-                width: parent.width - (2 * Theme.paddingLarge)
-                wrapMode: Text.WrapWord
-                text: ""
-            }
-            Label {
-                anchors.horizontalCenter: parent.horizontalCenter
-                color: Theme.primaryColor
-                linkColor: "#ffffff"
-                wrapMode: TextEdit.WordWrap
-                width: parent.width
-                //font.pixelSize: units.fx("small")
-                text: "<a href=\"https://github.com/poetaster/harbour-moremahjong\">Source: github</a>"
                 onLinkActivated: {
-                    //console.log("Opening external browser: " + link);
+                    Qt.openUrlExternally(link)
+                }
+                linkColor: Theme.highlightColor
+            }
+
+            Item {
+                width: 1
+                height: 3 * Theme.paddingLarge
+            }
+
+            Label {
+                color: Theme.primaryColor
+                linkColor: Theme.highlightColor
+                wrapMode: TextEdit.WordWrap
+                width: parent.width
+                text: "<a href=\"https://github.com/poetaster/harbour-moremahjong\">Source: github</a>" +
+                                  "\n © 2021 - 2026 Mark Washeim \n" +
+                                  qsTr("MIT license.")
+                onLinkActivated: {
+                    Qt.openUrlExternally(link)
+                }
+            }
+            Label {
+                color: Theme.primaryColor
+                linkColor: Theme.highlightColor
+                wrapMode: TextEdit.WordWrap
+                width: parent.width
+                text:  'gleitz theme  based on images from \n https://github.com/gleitz/mahjong/tree/master/public/img/tiles \n' +
+                        'MIT https://github.com/gleitz/mahjong/blob/master/LICENSE \n' +
+                        'by https://github.com/gleitz'
+                onLinkActivated: {
+                    Qt.openUrlExternally(link)
+                }
+            }
+
+            Label {
+                color: Theme.primaryColor
+                linkColor: Theme.highlightColor
+                wrapMode: TextEdit.WordWrap
+                width: parent.width
+                text:    "<a href=\"https://github.com/recri\">recri</a> "+
+                        "images come from https://github.com/recri/mahjong \n"
+                onLinkActivated: {
+                    Qt.openUrlExternally(link)
+                }
+            }
+            Label {
+                color: Theme.primaryColor
+                linkColor: Theme.highlightColor
+                wrapMode: TextEdit.WordWrap
+                width: parent.width
+                text: "picasso.svg classic.svg modern.svg \n" +
+                "based on images from http://star.physics.yale.edu/~ullrich/software/SolitaireMahjong/ \n" +
+                "GNU General Public License 3 http://www.gnu.org/licenses/  by Thomas S. Ullrich"
+                onLinkActivated: {
                     Qt.openUrlExternally(link)
                 }
             }
 
         } // Column
-    }
 }
 
 

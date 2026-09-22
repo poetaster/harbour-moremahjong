@@ -32,9 +32,12 @@ import QtQuick 2.6
 import Sailfish.Silica 1.0
 //import QtWebKit 3.0
 import "pages"
+import "pages/MahData.js" as Mah
+import "pages/db.js" as DB
 
 ApplicationWindow
 {
+    id:root
     allowedOrientations: Orientation.All
     initialPage: Component { FirstPage { } }
     cover: Qt.resolvedUrl("cover/CoverPage.qml")

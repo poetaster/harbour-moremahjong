@@ -7,6 +7,8 @@ import "db.js" as DB
 Page {
     id: page
 
+    //allowedOrientations: Orientation.All
+
     // ---- game state ------------------------------------------------------
     property var boards
     property var board          // the selected board object (pushed from Select)
@@ -60,66 +62,23 @@ Page {
         anchors.top: parent.top
         anchors.left: parent.left
         anchors.right: parent.right
-        height: Theme.headerHeight
-
+        width: parent.width
+        height: 30
         Row {
             id: topRow
             anchors.verticalCenter: parent.verticalCenter
-            x: Theme.paddingSmall
-            width: parent.width - 2 * Theme.paddingSmall
+            x: Theme.paddingLarge
+            width: parent.width
             spacing: Theme.paddingMedium
-
-            IconButton {
-                id: backButton
-                icon.source: "image://theme/icon-m-back"
-                onClicked: pageStack.pop()
-            }
 
             Column {
                 id: titleCol
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 1
                 width: Math.min(160, topRow.width * 0.35)
-
-                Label {
-                    width: parent.width
-                    elide: Text.ElideRight
-                    text: page.boardName
-                    font.pixelSize: Theme.fontSizeMedium
-                }
-                Label {
-                    width: parent.width
-                    elide: Text.ElideRight
-                    opacity: 0.85
-                    font.pixelSize: Theme.fontSizeSmall
-                    text: (page.game.count || 0) + qsTr(" tiles") + "  ·  "
-                         + Mah.formatTime(page.elapsedMs)
-                }
-            }
-
-            Label {
-                id: bestLabel
-                anchors.verticalCenter: parent.verticalCenter
-                width: topRow.width - backButton.width - titleCol.width -  2
-                elide: Text.ElideRight
-                horizontalAlignment: Text.AlignRight
-                opacity: 0.85
-                font.pixelSize: Theme.fontSizeSmall
-                text: {
-                    var bt = DB.bestTimeFor(page.boardId)
-                    return bt > 0 ? qsTr("Best %1").arg(Mah.formatTime(bt)) : ""
-                }
             }
         }
 
-        Rectangle {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            y: height - 1
-            height: 1
-            color: Theme.secondaryHighlightColor
-            opacity: 0.5
-        }
     }
 
     // ---- bottom bar ------------------------------------------------------
@@ -127,63 +86,112 @@ Page {
         id: bottomBar
         z: 10
         anchors.bottom: parent.bottom
-        anchors.left: parent.left
+        //anchors.left: parent.left + (parent.width / 2)// wrong but it works?
         anchors.right: parent.right
-        height: 72
-
-        Row {
+        width: parent.width / 6
+        height: parent.width / 6
+        rotation:90
+        transformOrigin: Item.TopRight
+        Column {
             id: toolRow
-            anchors.centerIn: parent
-            width: parent.width - 2 * Theme.paddingMedium
+            width: parent.width
             spacing: Theme.paddingMedium
             // Size each visible button so they fill the row exactly (the Row
             // skips invisible buttons), instead of reserving 6 equal slots.
             property real btnW: (width - (page.visibleBtns - 1) * spacing) / page.visibleBtns
 
+            Label {
+                width: parent.width
+                elide: Text.ElideRight
+                text: page.boardName
+                font.pixelSize: Theme.fontSizeMedium
+            }
+            Label {
+                width: parent.width
+                elide: Text.ElideRight
+                opacity: 0.85
+                font.pixelSize: Theme.fontSizeSmall
+                text: (page.game.count || 0) + qsTr(" tiles") + "  \n  "
+                      + Mah.formatTime(page.elapsedMs)
+            }
+            Label {
+                id: bestLabel
+                width: parent.width
+                elide: Text.ElideRight
+                opacity: 0.85
+                font.pixelSize: Theme.fontSizeSmall
+                text: {
+                    var bt = DB.bestTimeFor(page.boardId)
+                    return bt > 0 ? qsTr("Best %1").arg(Mah.formatTime(bt)) : ""
+                }
+            }
             Button {
-                width: toolRow.btnW
-                icon.source: "image://theme/icon-m-restore"
-                text: qsTr("Undo")
+                width: parent.width
+                icon.source: "image://theme/icon-m-tab-return"
+
+                //text: qsTr("Undo")
                 visible: !page.isExpert
                 enabled: page.running && page.undoAvailable
                 onClicked: page.doUndo()
             }
 
             Button {
-                width: toolRow.btnW
+                width: parent.width
                 icon.source: "image://theme/icon-m-search"
-                text: qsTr("Hint")
+                //text: qsTr("Hint")
                 visible: !page.isExpert
                 enabled: page.running
                 onClicked: page.doHint()
             }
 
             Button {
-                width: toolRow.btnW
-                icon.source: "image://theme/icon-m-refresh"
-                text: qsTr("Shuffle")
+                width: parent.width
+                icon.source: "image://theme/icon-m-shuffle"
+                //text: qsTr("Shuffle")
                 visible: page.isEasy
                 enabled: page.running
                 onClicked: page.doShuffle()
             }
 
             Button {
-                width: toolRow.btnW
+                width: parent.width
                 icon.source: "image://theme/icon-m-cancel"
-                text: qsTr("Restart")
+                //text: qsTr("Restart")
                 enabled: page.running || page.resultMsg !== ""
                 onClicked: page.newGame()
             }
+            // ---- game over -------------------------------------------------------
+            Column {
+                id: gamePopup
+                visible: false
+                width: parent.width//Math.min(360, page.width - 2 * Theme.paddingLarge)
+                spacing: Theme.paddingLarge
+
+                Label {
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    font.bold: true
+                    font.pixelSize: Theme.fontSizeLarge
+                    text: page.resultMsg === "win" ? qsTr("Oh, yes!") : qsTr("Oh, no!")
+                }
+                Label {
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    opacity: 0.85
+                    font.pixelSize: Theme.fontSizeSmall
+                    text: page.resultMsg === "win" ?
+                              qsTr("Time %1").arg(Mah.formatTime(page.elapsedMs))
+                            : qsTr("%1 tiles remain").arg(page.game.count || 0)
+                }
+
+                Button {
+                    width: parent.width
+                    text: qsTr("Again?")
+                    onClicked: { gamePopup.visible = false; page.newGame() }
+                }
+            }
         }
 
-        Rectangle {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            y: 0
-            height: 1
-            color: Theme.secondaryHighlightColor
-            opacity: 0.5
-        }
     }
 
     // ---- board -----------------------------------------------------------
@@ -216,7 +224,7 @@ Page {
             // x/y centering formula and the hit test both assume a top-left
             // anchored scale. With the default (center) origin every tap is
             // offset by (w/2)(1-s) in each axis.
-            transformOrigin: ItemOrigin.TopLeft
+            //transformOrigin: ItemOrigin.TopLeft
             x: ( stage.width - boardItem.width ) / 2 - 100
             y: ( stage.height - boardItem.height ) / 2 - 100
             width: stage.boardW - (4*Theme.paddingLarge)
@@ -247,7 +255,7 @@ Page {
                         property bool hin: page.hintIdxs.indexOf(tileModel.get(index).idx) >= 0
                         border.width: sel ? 5 : (hin ? 4 : 2)
                         border.color: sel ? "#ffc400"
-                                   : (hin ? "#00b7ff" : "rgba(60,50,30,0.55)")
+                                          : (hin ? "#00b7ff" : "rgba(60,50,30,0.55)")
                     }
                     Image {
                         anchors.centerIn: parent
@@ -288,8 +296,8 @@ Page {
                 for (var i = 0; i < tileModel.count; i++) {
                     var t = tileModel.get(i)
                     if (bx >= t.x && bx <= t.x + Mah.TILE_H &&
-                        by >= t.y && by <= t.y + Mah.TILE_W &&
-                        t.zsort > bestZ) {
+                            by >= t.y && by <= t.y + Mah.TILE_W &&
+                            t.zsort > bestZ) {
                         bestZ = t.zsort
                         best = t.idx
                     }
@@ -305,47 +313,7 @@ Page {
         }
     }
 
-    // ---- game over -------------------------------------------------------
-    Dialog{
-        id: gamePopup
-        z: 20
 
-        Column {
-            width: Math.min(360, page.width - 2 * Theme.paddingLarge)
-            spacing: Theme.paddingLarge
-
-            Label {
-                width: parent.width
-                horizontalAlignment: Text.AlignHCenter
-                font.bold: true
-                font.pixelSize: Theme.fontSizeLarge
-                text: page.resultMsg === "win" ? qsTr("You win!") : qsTr("No more moves")
-            }
-            Label {
-                width: parent.width
-                horizontalAlignment: Text.AlignHCenter
-                opacity: 0.85
-                text: page.resultMsg === "win" ?
-                    qsTr("Time %1").arg(Mah.formatTime(page.elapsedMs))
-                    : qsTr("%1 tiles remain").arg(page.game.count || 0)
-            }
-            Row {
-                width: parent.width
-                spacing: Theme.paddingMedium
-
-                Button {
-                    width: (parent.width ) / 2
-                    text: qsTr("Play again")
-                    onClicked: { gamePopup.hide(); page.newGame() }
-                }
-                Button {
-                    width: (parent.width ) / 2
-                    text: qsTr("Boards")
-                    onClicked: { gamePopup.hide(); pageStack.pop() }
-                }
-            }
-        }
-    }
 
     // ---- engine glue -----------------------------------------------------
     ListModel { id: tileModel }
@@ -364,20 +332,19 @@ Page {
             var v = p.py - stage.minY
             var W = stage.contentW
             tileModel.append({
-                idx: i,
-                // 90° CCW rotation: old top-left (u,v) -> (v, W - u - TILE_W)
-                x: v,
-                y: W - u - Mah.TILE_W,
-                zsort: p.zsort,
-                src: Mah.imageFor(s.v)
-            })
+                                 idx: i,
+                                 // 90° CCW rotation: old top-left (u,v) -> (v, W - u - TILE_W)
+                                 x: v,
+                                 y: W - u - Mah.TILE_W,
+                                 zsort: p.zsort,
+                                 src: Mah.imageFor(s.v)
+                             })
         }
         refreshFlags()
     }
 
     // Refresh only the selection/hint borders from the current game state.
-    // Cheap: it just reassigns two page properties (which repaint the
-    // delegate borders) instead of destroying and recreating every tile.
+    // reassigns two page properties which repaint the delegate borders
     function refreshFlags() {
         var g = page.game
         if (!g) {
@@ -395,8 +362,7 @@ Page {
         page.refreshUndo()
     }
 
-    // Remove just the matched (picked) tiles from the model, instead of
-    // rebuilding the whole board. Fast: only two delegates are destroyed.
+    // Remove just  matched (picked) tiles from the model,
     function removePickedTiles() {
         var g = page.game
         if (!g || !g.stones)
@@ -452,7 +418,7 @@ Page {
             return
         }
         if (g.selected >= 0 && g.selected !== i
-            && g.stones[g.selected].groupnr === s.groupnr) {
+                && g.stones[g.selected].groupnr === s.groupnr) {
             Mah.pickPair(g, g.selected, i)
             removePickedTiles()   // just drop the two matched tiles
             if (g.count < 2) {
@@ -502,11 +468,20 @@ Page {
         page.resultMsg = won ? "win" : "lose"
         page.resultScore = DB.recordGame(page.boardId, won, page.elapsedMs)
         refreshFlags()
-        gamePopup.show()
+        gamePopup.visible = true
     }
 
     onWidthChanged: stage.adjustFit()
     onHeightChanged: stage.adjustFit()
 
-    Component.onCompleted: newGame()
+    Component.onCompleted: {
+        var theme = DB.getTheme();
+        if (theme !== undefined) Mah.setTheme( theme.value )
+        console.log(JSON.stringify(theme))
+        newGame()
+    }
+    onStatusChanged: {
+        if (page.status == PageStatus.Activating) {
+        }
+    }
 }
