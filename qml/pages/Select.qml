@@ -13,14 +13,15 @@ Page {
     property var scores: []
     property string mode: "GAME_MODE_STANDARD"
 
-    // Pending Game push, performed once the "Loading..." label has painted.
-    // A synchronous pageStack.push never leaves a render pass for the label.
+    // Pending Game push. A short delay lets the spinner paint (a synchronous
+    // push never leaves a render pass for it); the deal then runs during
+    // that gap, behind the spinner.
     property var pendingBoard: null
     property string pendingBoardId: ""
 
     Timer {
         id: pushTimer
-        interval: 250
+        interval: 150
         repeat: false
         onTriggered: {
             var b = page.pendingBoard
@@ -28,11 +29,26 @@ Page {
             page.pendingBoard = null
             page.pendingBoardId = ""
             if (b) {
-                pageStack.push("Game.qml", { board: b, boardId: bid, mode: page.mode })
+                // Deal here, behind the spinner, and pass the finished
+                // game to the Game page so the transition never waits
+                // on the solver.
+                var g = Mah.dealBoard(b)
+                busy.running = false
+                pageStack.push("Game.qml", { board: b, boardId: bid, mode: page.mode, prepared: g })
             }
         }
     }
-
+    BusyIndicator {
+        z:1
+        id:busy
+        running:  false
+        //text:qsTr("Composing...")
+        anchors.centerIn: parent
+        size: BusyIndicatorSize.Large
+        BusyLabel {
+            text: "Loading..."
+        }
+    }
     readonly property real thumbW: page.width / 2
     readonly property real thumbH: page.width / 2
     readonly property real cardH: page.width / 2 + Theme.paddingLarge
@@ -58,18 +74,7 @@ Page {
             qsTr("No win yet")
         return t
     }
-    BusyIndicator {
-        z:1
-        id:busy
-        running:  false
-        //text:qsTr("Composing...")
-        anchors.horizontalCenter:  parent.horizontalCenter
-        anchors.bottom: col.top
-        size: BusyIndicatorSize.Large
-        BusyLabel {
-            text: "Loading..."
-        }
-    }
+
     SilicaFlickable {
         id: flickable
         anchors.fill: parent
@@ -132,9 +137,12 @@ Page {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
+                    var b = boards[index]
+                    if (!b)
+                        return
                     busy.running = true
-                    page.pendingBoard = boards[index]
-                    page.pendingBoardId = String(boards[index].id)
+                    page.pendingBoard = b
+                    page.pendingBoardId = String(b.id)
                     pushTimer.start()
                 }
             }
@@ -151,9 +159,27 @@ Page {
                 Item {
                     id: thumb
                     width: page.thumbW
-                    height: card.preview ? card.preview.height : 0
+                    height: page.thumbH
                     anchors.verticalCenter: parent.verticalCenter
 
+                    // Baked miniature: one image per card instead of ~144
+                    // separate rectangle nodes, so the Select page's scene
+                    // graph stays light and the page transition animates
+                    // fast on the phone.
+                    Image {
+                        id: thumbImage
+                        anchors.fill: parent
+                        asynchronous: true
+                        smooth: true
+                        source: Mah.assetBase() + "data/previews/" + boards[index].id + ".png"
+                        onStatusChanged: {
+                            if (status === Image.Error)
+                                card.buildPreview()
+                        }
+                    }
+
+                    // Fallback: draw the miniature live if the baked image
+                    // is missing.
                     Repeater {
                         model: card.preview ? card.preview.tiles.length : 0
                         delegate: Rectangle {
@@ -196,13 +222,21 @@ Page {
                     }
                 }
             }
-            Component.onCompleted: {
+            function buildPreview() {
+                if (card.preview)
+                    return
                 try {
-                    //console.error("id " + boards[index].id + " name:" + boards[index].name )
                     card.preview = Mah.previewTiles(boards[index].map, page.thumbW, page.thumbH)
                 } catch (err) {
                     if (debug) console.error("preview failed for board " + boards[index].id + ": " + err)
                 }
+            }
+
+            Component.onCompleted: {
+                // Only pay for the live miniature if the baked image
+                // failed to load.
+                if (thumbImage.status === Image.Error)
+                    card.buildPreview()
             }
         }
     }

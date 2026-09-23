@@ -31,6 +31,7 @@ DISTFILES += \
     qml/mah/assets/sounds/* \
     qml/mah/assets/app/* \
     qml/mah/assets/data/* \
+    qml/mah/assets/data/previews/* \
     qml/mah/assets/svg/* \
     qml/mah/assets/svg/*/* \
     qml/mah/assets/img/* \

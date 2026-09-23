@@ -13,6 +13,11 @@ Page {
     property var board          // the selected board object (pushed from Select)
     property string boardId: ""
     property string mode: "GAME_MODE_STANDARD"
+    // Pre-computed game state dealt by Select.qml before the push, so the
+    // solver never runs inside the page transition. Consumed once by
+    // newGame(); later games (Restart / Again) deal on the spot.
+    property var prepared: null
+
     readonly property bool isEasy: mode === "GAME_MODE_EASY"
     readonly property bool isExpert: mode === "GAME_MODE_EXPERT"
     // How many bottom-bar buttons are visible in this mode, so the row can
@@ -110,8 +115,9 @@ Page {
                 elide: Text.ElideRight
                 opacity: 0.85
                 font.pixelSize: Theme.fontSizeSmall
-                text: (page.game.count || 0) + qsTr(" tiles") + "  \n  "
-                      + Mah.formatTime(page.elapsedMs)
+                text: page.building ? qsTr("Preparing board…")
+                      : (page.game.count || 0) + qsTr(" tiles") + "  \n  "
+                        + Mah.formatTime(page.elapsedMs)
             }
             Label {
                 id: bestLabel
@@ -205,7 +211,6 @@ Page {
         property real fitScale: 1
         property real boardW: 1
         property real boardH: 1
-        property real contentW: 1    // unrotated board width, for the tile mapping
         property real minX: 0
         property real minY: 0
         readonly property real scale: fitScale
@@ -232,16 +237,23 @@ Page {
 
             Repeater {
                 id: rep
-                model: tileModel.count
+                // The ListModel itself (not its count): the delegate then
+                // receives the row's roles (idx, px, py, zsort, src) as
+                // context properties, and remove(i) destroys the right
+                // delegate instead of just shrinking an int model.
+                model: tileModel
 
                 delegate: Item {
                     id: tileDelegate
                     // rotated footprint: wide = TILE_H, tall = TILE_W
                     width: Mah.TILE_H
                     height: Mah.TILE_W
-                    x: tileModel.get(index).x
-                    y: tileModel.get(index).y
-                    z: tileModel.get(index).zsort
+                    // px/py roles (renamed from x/y to avoid the Item.x
+                    // self-reference trap); idx/zsort/src bind directly
+                    // from the model context - no tileModel.get() round-trips.
+                    x: px
+                    y: py
+                    z: zsort
 
                     Rectangle {
                         id: face
@@ -250,8 +262,8 @@ Page {
                         height: Mah.TILE_W + 1
                         radius: 8
                         color: "#f4eeda"
-                        property bool sel: tileModel.get(index).idx === page.selectedIdx
-                        property bool hin: page.hintIdxs.indexOf(tileModel.get(index).idx) >= 0
+                        property bool sel: idx === page.selectedIdx
+                        property bool hin: page.hintIdxs.indexOf(idx) >= 0
                         border.width: sel ? 5 : (hin ? 4 : 2)
                         border.color: sel ? "#ffc400"
                                           : (hin ? "#00b7ff" : "rgba(60,50,30,0.55)")
@@ -260,9 +272,12 @@ Page {
                         anchors.centerIn: parent
                         width: Mah.TILE_H - 6
                         height: Mah.TILE_W - 6
-                        source: tileModel.get(index).src
+                        source: src
                         smooth: true
-                        mipmap: true
+                        // No mipmap: tiles render near native size, and
+                        // glGenerateMipmap per texture is very slow on the
+                        // phone's GPU - it was a big part of the ~27ms/tile.
+                        asynchronous: true
                     }
                 }
             }
@@ -274,6 +289,7 @@ Page {
             id: stageMouse
             anchors.fill: parent
             z: 5
+            enabled: !page.building
 
             function tileAtPoint(mx, my) {
                 if (stage.scale <= 0)
@@ -294,8 +310,8 @@ Page {
                 var bestZ = -1
                 for (var i = 0; i < tileModel.count; i++) {
                     var t = tileModel.get(i)
-                    if (bx >= t.x && bx <= t.x + Mah.TILE_H &&
-                            by >= t.y && by <= t.y + Mah.TILE_W &&
+                    if (bx >= t.px && bx <= t.px + Mah.TILE_H &&
+                            by >= t.py && by <= t.py + Mah.TILE_W &&
                             t.zsort > bestZ) {
                         bestZ = t.zsort
                         best = t.idx
@@ -317,11 +333,42 @@ Page {
     // ---- engine glue -----------------------------------------------------
     ListModel { id: tileModel }
 
+    // ---- progressive board build -----------------------------------------
+    property bool building: false
+    property var buildQueue: null
+    property int buildPos: 0
+
+    Timer {
+        id: buildTimer
+        interval: 20
+        repeat: true
+        running: page.building
+        onTriggered: {
+            var t0 = Date.now()
+            var q = page.buildQueue
+            var n = q ? q.length : 0
+            while (page.buildPos < n && Date.now() - t0 < 8) {
+                var t = q[page.buildPos]
+                page.buildPos++
+                tileModel.append({ idx: t.idx, px: t.px, py: t.py,
+                                   zsort: t.zsort, src: t.src })
+            }
+            if (page.buildPos >= n) {
+                page.building = false
+                page.running = true
+                refreshFlags()
+            }
+        }
+    }
+
+    // Queue every remaining tile (bottom layers first, so the board
+    // materializes from the base upwards) and start the chunked build.
     function rebuildModel() {
         var g = page.game
         if (!g || !g.stones)
             return
         tileModel.clear()
+        var q = []
         for (var i = 0; i < g.stones.length; i++) {
             var s = g.stones[i]
             if (s.picked)
@@ -329,15 +376,45 @@ Page {
             var p = Mah.tilePos(s.z, s.x, s.y)
             var u = p.px - stage.minX
             var v = p.py - stage.minY
-            var W = stage.contentW
+            var H = stage.boardW
+            q.push({
+                     idx: i,
+                     // 90° CW rotation (board turned 180° vs the old view):
+                     // old top-left (u,v) -> (H - v - TILE_H, u)
+                     px: H - v - Mah.TILE_H,
+                     py: u,
+                     zsort: p.zsort,
+                     src: Mah.imageFor(s.v)
+                 })
+        }
+        q.sort(function(a, b) { return a.zsort - b.zsort })
+        page.buildQueue = q
+        page.buildPos = 0
+        page.building = true
+    }
+
+    // Re-append just the tiles restored by an undo (cheap, no rebuild).
+    function restorePicked() {
+        var g = page.game
+        if (!g || !g.stones)
+            return
+        var inModel = {}
+        for (var i = 0; i < tileModel.count; i++)
+            inModel[tileModel.get(i).idx] = true
+        for (var j = 0; j < g.stones.length; j++) {
+            var s = g.stones[j]
+            if (s.picked || inModel[j])
+                continue
+            var p = Mah.tilePos(s.z, s.x, s.y)
+            var u = p.px - stage.minX
+            var v = p.py - stage.minY
             tileModel.append({
-                                 idx: i,
-                                 // 90° CCW rotation: old top-left (u,v) -> (v, W - u - TILE_W)
-                                 x: v,
-                                 y: W - u - Mah.TILE_W,
-                                 zsort: p.zsort,
-                                 src: Mah.imageFor(s.v)
-                             })
+                               idx: j,
+                               px: stage.boardW - v - Mah.TILE_H,
+                               py: u,
+                               zsort: p.zsort,
+                               src: Mah.imageFor(s.v)
+                           })
         }
         refreshFlags()
     }
@@ -385,20 +462,20 @@ Page {
         if (!board)
             return
         page.boardName = board.name
-        page.game = Mah.dealBoard(board)
+        page.game = page.prepared ? page.prepared : Mah.dealBoard(board)
+        page.prepared = null
         page.resultMsg = ""
         page.resultScore = {}
         page.elapsedMs = 0
-        page.running = true
+        // page.running is enabled by buildTimer once the tiles are in.
 
         var box = Mah.boardBox(board.map)
         stage.minX = box.minx
         stage.minY = box.miny
-        // Board is drawn rotated 90° CCW (top edge becomes left edge) so the
+        // Board is drawn rotated 90° CW (top edge becomes right edge) so the
         // wide board fills the tall portrait window.
         stage.boardW = box.h
         stage.boardH = box.w
-        stage.contentW = box.w
         stage.adjustFit()
         rebuildModel()
     }
@@ -444,7 +521,7 @@ Page {
         if (!page.running || page.game.undo.length < 2)
             return
         if (Mah.back(page.game))
-            rebuildModel()
+            restorePicked()
     }
 
     function doHint() {
@@ -478,8 +555,6 @@ Page {
         if (theme !== undefined) Mah.setTheme( theme.value )
         newGame()
     }
-    onStatusChanged: {
-        if (page.status == PageStatus.Activating) {
-        }
-    }
+
+
 }

@@ -38,27 +38,12 @@ import "pages/db.js" as DB
 ApplicationWindow
 {
     id:appwindow
-    property var boards:[]
-    property var scores:[]
 
     allowedOrientations: Orientation.All
-    initialPage: Component { FirstPage { boards:boards; scores:scores } }
+    initialPage: Component { FirstPage { }}
     cover: Qt.resolvedUrl("cover/CoverPage.qml")
 
-    Component.onCompleted: {// Load all board definitions from assets/data/boards.json.
-        function loadBoards() {
-            var response;
-            var out = []
-            Mah.loadJSON("../mah/assets/data/boards.json", function(doc) {
-                response = JSON.parse(doc.responseText);
-                for (var i = 0; i < response.length ; i++) {
-                    boards[i] = response[i];
-                };
-            });
-        }
-        loadBoards()
-        scores = DB.loadScores()
-    }
+
 }
 
 

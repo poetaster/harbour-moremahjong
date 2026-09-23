@@ -1,0 +1,3 @@
+# Qt Creator per-user project files
+*.pro.user
+*.pro.user.*
