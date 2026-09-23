@@ -10,7 +10,6 @@ Page {
     //allowedOrientations: Orientation.All
 
     // ---- game state ------------------------------------------------------
-    property var boards
     property var board          // the selected board object (pushed from Select)
     property string boardId: ""
     property string mode: "GAME_MODE_STANDARD"

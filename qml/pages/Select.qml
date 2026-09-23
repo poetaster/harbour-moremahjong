@@ -20,7 +20,7 @@ Page {
 
     Timer {
         id: pushTimer
-        interval: 150
+        interval: 250
         repeat: false
         onTriggered: {
             var b = page.pendingBoard
@@ -59,12 +59,16 @@ Page {
         return t
     }
     BusyIndicator {
-        z:100
+        z:1
         id:busy
         running:  false
         //text:qsTr("Composing...")
-        anchors.centerIn: parent
+        anchors.horizontalCenter:  parent.horizontalCenter
+        anchors.bottom: col.top
         size: BusyIndicatorSize.Large
+        BusyLabel {
+            text: "Loading..."
+        }
     }
     SilicaFlickable {
         id: flickable

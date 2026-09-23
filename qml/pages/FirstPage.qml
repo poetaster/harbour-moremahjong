@@ -28,7 +28,7 @@ Page {
     // the label paint first (and also absorbs fast double-taps into one push).
     Timer {
         id: pushTimer
-        interval: 150
+        interval: 250
         repeat: false
         onTriggered: {
             var t = view.pendingTheme
@@ -92,7 +92,7 @@ Page {
                 contentHeight: 300
                 Image {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    width: parent.width - Theme.paddingLarge
+                    width: parent.width - ( 3 * Theme.paddingLarge )
                     source: Qt.resolvedUrl("picasso.png")
                     fillMode: Image.PreserveAspectCrop
                 }
@@ -107,7 +107,7 @@ Page {
                 contentHeight: 300//Theme.itemSizeExtraLarge
                 Image {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    width: parent.width - Theme.paddingLarge
+                    width: parent.width - ( 3 * Theme.paddingLarge )
                     source: Qt.resolvedUrl("classic.png")
                     fillMode: Image.PreserveAspectCrop
 
@@ -122,8 +122,8 @@ Page {
                 id:thThree
                 contentHeight: 300//Theme.itemSizeExtraLarge
                 Image {
+                    width: parent.width - ( 3 * Theme.paddingLarge )
                     anchors.horizontalCenter: parent.horizontalCenter
-                    width: parent.width - Theme.paddingLarge
                     source: Qt.resolvedUrl("recri.png")
                     fillMode: Image.PreserveAspectCrop
                 }
