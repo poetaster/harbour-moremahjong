@@ -20,11 +20,18 @@ DISTFILES += \
     qml/harbour-moremahjong.qml \
     qml/pages/About.qml \
     qml/pages/FirstPage.qml \
+    qml/pages/Game.qml \
+    qml/pages/MahData.js \
+    qml/pages/WebView.qml \
+    qml/pages/db.js \
+    qml/pages/Select.qml \
+    qml/pages/*.png \
     qml/mah/* \
     qml/mah/assets/* \
     qml/mah/assets/sounds/* \
     qml/mah/assets/app/* \
     qml/mah/assets/data/* \
+    qml/mah/assets/data/previews/* \
     qml/mah/assets/svg/* \
     qml/mah/assets/svg/*/* \
     qml/mah/assets/img/* \
