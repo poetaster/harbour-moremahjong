@@ -5,7 +5,7 @@ import "db.js" as DB
 Page {
     id: page
 
-    allowedOrientations: Orientation.All
+    //allowedOrientations: Orientation.All
 
     property bool debug: false
     property var boards

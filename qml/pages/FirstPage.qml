@@ -16,19 +16,13 @@ Page {
             return thisTheme.value
         }
 }
-    allowedOrientations: Orientation.All
+    //allowedOrientations: Orientation.All
 
-    // Which Select push to perform once the "Loading..." label has painted.
-    // "" = idle; "play" = plain push; otherwise the theme name.
     property string pendingTheme: ""
 
-    // A synchronous pageStack.push never leaves a render pass to paint the
-    // busy label before the transition covers the page, so the label only
-    // appears near the end of the push. Deferring the push by one beat lets
-    // the label paint first (and also absorbs fast double-taps into one push).
     Timer {
         id: pushTimer
-        interval: 250
+        interval: 100
         repeat: false
         onTriggered: {
             var t = view.pendingTheme
@@ -92,7 +86,7 @@ Page {
                 contentHeight: 300
                 Image {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    width: parent.width - ( 3 * Theme.paddingLarge )
+                    width: parent.width - ( 4 * Theme.paddingLarge )
                     source: Qt.resolvedUrl("picasso.png")
                     fillMode: Image.PreserveAspectCrop
                 }
@@ -105,9 +99,10 @@ Page {
             BackgroundItem {
                 id:thTwo
                 contentHeight: 300//Theme.itemSizeExtraLarge
+
                 Image {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    width: parent.width - ( 3 * Theme.paddingLarge )
+                    width: parent.width - ( 4 * Theme.paddingLarge )
                     source: Qt.resolvedUrl("classic.png")
                     fillMode: Image.PreserveAspectCrop
 
@@ -122,7 +117,7 @@ Page {
                 id:thThree
                 contentHeight: 300//Theme.itemSizeExtraLarge
                 Image {
-                    width: parent.width - ( 3 * Theme.paddingLarge )
+                    width: parent.width - ( 4 * Theme.paddingLarge )
                     anchors.horizontalCenter: parent.horizontalCenter
                     source: Qt.resolvedUrl("recri.png")
                     fillMode: Image.PreserveAspectCrop
@@ -133,6 +128,22 @@ Page {
                     pushTimer.start()
                 }
             }
+            BackgroundItem {
+                id:thFour
+                contentHeight: 300//Theme.itemSizeExtraLarge
+                Image {
+                    width: parent.width - ( 4 * Theme.paddingLarge )
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    source: Qt.resolvedUrl("cheshire137.png")
+                    fillMode: Image.PreserveAspectCrop
+                }
+                onClicked: {
+                    busy.visible = true
+                    view.pendingTheme = "cheshire137"
+                    pushTimer.start()
+                }
+            }
+            /*
             BackgroundItem {
                 id:thFour
                 //contentHeight: Theme.itemSizeExtraLarge
@@ -146,7 +157,7 @@ Page {
                         pushTimer.start()
                     }
                 }
-            }
+            }*/
 
         }
     }

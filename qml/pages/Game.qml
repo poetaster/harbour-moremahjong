@@ -9,7 +9,7 @@ Page {
 
     //allowedOrientations: Orientation.All
 
-    // ---- game state ------------------------------------------------------
+    // game state
     property var board          // the selected board object (pushed from Select)
     property string boardId: ""
     property string mode: "GAME_MODE_STANDARD"
@@ -20,11 +20,7 @@ Page {
 
     readonly property bool isEasy: mode === "GAME_MODE_EASY"
     readonly property bool isExpert: mode === "GAME_MODE_EXPERT"
-    // How many bottom-bar buttons are visible in this mode, so the row can
-    // size them to fill evenly instead of leaving an empty slot:
-    //   Easy:     Undo, Hint, Shuffle, Restart = 4
-    //   Standard: Undo, Hint, Restart          = 3
-    //   Expert:   Restart                      = 1
+    // To-Do
     readonly property int visibleBtns: isEasy ? 4 : (isExpert ? 1 : 3)
 
     property var game: ({})          // engine state (see MahData.js)
@@ -44,13 +40,13 @@ Page {
         page.undoAvailable = page.game.undo.length >= 2
     }
 
-    // ---- sounds ----------------------------------------------------------
+    //  sounds  - only wav files
     SoundEffect { id: sndSelect; source: "../mah/assets/sounds/select.wav" }
     SoundEffect { id: sndMatch; source: "../mah/assets/sounds/match.wav" }
     SoundEffect { id: sndInvalid; source: "../mah/assets/sounds/invalid.wav" }
     SoundEffect { id: sndOver; source: "../mah/assets/sounds/over.wav" }
 
-    // ---- clock -----------------------------------------------------------
+    //  clock - for game time
     Timer {
         id: clock
         interval: 1000
@@ -59,7 +55,7 @@ Page {
         onTriggered: page.elapsedMs += 1000
     }
 
-    // ---- top bar ---------------------------------------------------------
+    //  top bar  - just a spacer currently
     Item {
         id: topBar
         z: 10
@@ -85,24 +81,20 @@ Page {
 
     }
 
-    // ---- bottom bar ------------------------------------------------------
+    // bottom bar visible as a 'right bar' 'twisted it is'
     Item {
         id: bottomBar
         z: 10
         anchors.bottom: parent.bottom
-        //anchors.left: parent.left + (parent.width / 2)// wrong but it works?
         anchors.right: parent.right
         width: parent.width / 6
-        height: parent.width / 6
+        height: parent.width / 5
         rotation:90
         transformOrigin: Item.TopRight
         Column {
             id: toolRow
             width: parent.width
             spacing: Theme.paddingMedium
-            // Size each visible button so they fill the row exactly (the Row
-            // skips invisible buttons), instead of reserving 6 equal slots.
-            property real btnW: (width - (page.visibleBtns - 1) * spacing) / page.visibleBtns
 
             Label {
                 width: parent.width
@@ -165,7 +157,7 @@ Page {
                 enabled: page.running || page.resultMsg !== ""
                 onClicked: page.newGame()
             }
-            // ---- game over -------------------------------------------------------
+            //  game over
             Column {
                 id: gamePopup
                 visible: false
@@ -199,7 +191,7 @@ Page {
 
     }
 
-    // ---- board -----------------------------------------------------------
+    //  board
     Item {
         id: stage
         anchors.top: topBar.bottom
@@ -215,8 +207,7 @@ Page {
         property real minY: 0
         readonly property real scale: fitScale
 
-        // Fit the whole board into the stage at the largest size that fits,
-        // centered. There is no user zoom/pan: the board is always the best fit.
+        // Fit the whole board into the stage at the largest size that fits, centered.
         function adjustFit() {
             if (boardW > 0 && boardH > 0 && width > 0 && height > 0)
                 fitScale = Math.min(width / boardW, height / boardH) * 0.95
@@ -228,7 +219,6 @@ Page {
             // x/y centering formula and the hit test both assume a top-left
             // anchored scale. With the default (center) origin every tap is
             // offset by (w/2)(1-s) in each axis.
-            //transformOrigin: ItemOrigin.TopLeft
             x: ( stage.width - boardItem.width ) / 2 - 100
             y: ( stage.height - boardItem.height ) / 2 - 100
             width: stage.boardW - (4*Theme.paddingLarge)
@@ -241,6 +231,7 @@ Page {
                 // receives the row's roles (idx, px, py, zsort, src) as
                 // context properties, and remove(i) destroys the right
                 // delegate instead of just shrinking an int model.
+                // This is reasonably fast :)
                 model: tileModel
 
                 delegate: Item {
@@ -250,7 +241,7 @@ Page {
                     height: Mah.TILE_W
                     // px/py roles (renamed from x/y to avoid the Item.x
                     // self-reference trap); idx/zsort/src bind directly
-                    // from the model context - no tileModel.get() round-trips.
+                    // from the model context
                     x: px
                     y: py
                     z: zsort
@@ -274,10 +265,7 @@ Page {
                         height: Mah.TILE_W - 6
                         source: src
                         smooth: true
-                        // No mipmap: tiles render near native size, and
-                        // glGenerateMipmap per texture is very slow on the
-                        // phone's GPU - it was a big part of the ~27ms/tile.
-                        asynchronous: true
+                        asynchronous: true // mucho importanté!
                     }
                 }
             }
@@ -329,18 +317,18 @@ Page {
     }
 
 
-
-    // ---- engine glue -----------------------------------------------------
     ListModel { id: tileModel }
 
-    // ---- progressive board build -----------------------------------------
+    // progressive board build
+
     property bool building: false
     property var buildQueue: null
     property int buildPos: 0
 
+    // with 50ms we see the animation briefly.
     Timer {
         id: buildTimer
-        interval: 20
+        interval: 50
         repeat: true
         running: page.building
         onTriggered: {
@@ -393,7 +381,7 @@ Page {
         page.building = true
     }
 
-    // Re-append just the tiles restored by an undo (cheap, no rebuild).
+    // Re-append just the tiles restored by an undo.
     function restorePicked() {
         var g = page.game
         if (!g || !g.stones)
@@ -467,7 +455,7 @@ Page {
         page.resultMsg = ""
         page.resultScore = {}
         page.elapsedMs = 0
-        // page.running is enabled by buildTimer once the tiles are in.
+        // page.running is enabled by buildTimer once the tiles are ready
 
         var box = Mah.boardBox(board.map)
         stage.minX = box.minx

@@ -191,12 +191,20 @@ function _write(query, values) {
 // set or update stored user style/theme
 function setTheme(theme){
     var db = getDatabase();
-    var query;
-    query = 'UPDATE settings SET value = ? WHERE setting = "theme"';
     var row = undefined;
+    row= getTheme();
     var r = undefined;
-    r =  simpleQuery(query, [theme]);
-    if (r > 0) return 1;
+    var query;
+    if (row != undefined) {
+        query = 'UPDATE settings SET value = ? WHERE setting = "theme"';
+        r =  simpleQuery(query, [theme]);
+        if (r > 0) return 1;
+    } else {
+        query = 'INSERT into settings ( setting, value ) VALUES ("theme", ?) ' ;
+        r =  simpleQuery(query, [theme]);
+        if (r > 0) return 1;
+    }
+
     return "classic"
 }
 
@@ -221,8 +229,6 @@ function recordGame(boardId, won, timeMs) {
         s.bestTime = timeMs;
     if (timeMs >= 0)
         s.lastTime = timeMs;
-    // Never bind '' (the module stores it as NULL, which violates the
-    // NOT NULL constraints): '0' means "no time recorded".
     var bestStr = s.bestTime >= 0 ? String(s.bestTime) : '0';
     var lastStr = s.lastTime >= 0 ? String(s.lastTime) : '0';
     var ins = 'INSERT INTO times (board_id, last_time, best_time, play_count) VALUES (?, ?, ?, ?)';
