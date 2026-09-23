@@ -9,7 +9,7 @@ Name:       harbour-moremahjong
 # << macros
 
 Summary:    Not so Simple Mahjong
-Version:    1.6.1
+Version:    2.0.0
 Release:    1
 Group:      Qt/Qt
 License:    MIT
