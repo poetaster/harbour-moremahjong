@@ -13,7 +13,7 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with harbour-dwd.  If not, see <http://www.gnu.org/licenses/>.
+ * along with harbour-moremahjong.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -555,6 +555,11 @@ function shuffleGame(g) {
         }
         nb = buildNbs(stones)
     }
+    // solveOnce marks every stone picked=true as it simulates the board down to
+    // zero; reset that before the already-matched tiles are re-added below
+    // (which keep picked=true). Mirrors the reset in dealBoard.
+    for (i = 0; i < stones.length; i++)
+        stones[i].picked = false
     // Tiles not used by the fresh assignment go back to the removed stones
     // (module 6779 shuffle: M.list minus the built assignment).
     // Tile ids repeat within a group (4x t_do1), so count usage per id.
@@ -599,6 +604,8 @@ function shuffle(arr) {
 
 // Pre-scaled miniature of a board for the selection list.
 // fitW/fitH: maximum width/height of the miniature in pixels.
+// With 86 layouts this causes a very significant delay. Only used if an image won't load
+// In the view it requires that border colors are set to flat black to make the view clear
 function previewTiles(map, fitW, fitH) {
     if (fitH === undefined)
         fitH = Infinity

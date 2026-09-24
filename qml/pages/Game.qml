@@ -127,32 +127,29 @@ Page {
                 icon.source: "image://theme/icon-m-tab-return"
 
                 //text: qsTr("Undo")
-                visible: !page.isExpert
                 enabled: page.running && page.undoAvailable
                 onClicked: page.doUndo()
             }
 
             Button {
+                visible: !isExpert
                 width: parent.width
                 icon.source: "image://theme/icon-m-search"
-                //text: qsTr("Hint")
-                visible: !page.isExpert
                 enabled: page.running
                 onClicked: page.doHint()
             }
 
             Button {
                 width: parent.width
+                visible: isEasy
                 icon.source: "image://theme/icon-m-shuffle"
-                //text: qsTr("Shuffle")
-                visible: page.isEasy
                 enabled: page.running
                 onClicked: page.doShuffle()
             }
 
             Button {
                 width: parent.width
-                icon.source: "image://theme/icon-m-cancel"
+                icon.source: "image://theme/icon-m-new"
                 //text: qsTr("Restart")
                 enabled: page.running || page.resultMsg !== ""
                 onClicked: page.newGame()
@@ -181,11 +178,6 @@ Page {
                             : qsTr("%1 tiles remain").arg(page.game.count || 0)
                 }
 
-                Button {
-                    width: parent.width
-                    text: qsTr("Again?")
-                    onClicked: { gamePopup.visible = false; page.newGame() }
-                }
             }
         }
 
@@ -444,6 +436,7 @@ Page {
 
 
     function newGame() {
+        gamePopup.visible = false
         var board = page.board
         if (!board && page.boards)
             board = Mah.findBoard(page.boards, page.boardId)
@@ -520,7 +513,7 @@ Page {
     }
 
     function doShuffle() {
-        if (!page.running || !page.isEasy)
+        if (!page.running )
             return
         Mah.shuffleGame(page.game)
         rebuildModel()
@@ -533,15 +526,23 @@ Page {
         page.resultScore = DB.recordGame(page.boardId, won, page.elapsedMs)
         refreshFlags()
         gamePopup.visible = true
+        overTimer.start()
     }
-
+    Timer {
+        id: overTimer
+        interval: 2000
+        repeat: false
+        onTriggered: {
+            page.newGame()
+        }
+    }
     onWidthChanged: stage.adjustFit()
     onHeightChanged: stage.adjustFit()
 
     Component.onCompleted: {
         var theme = DB.getTheme();
         if (theme !== undefined) Mah.setTheme( theme.value )
-        newGame()
+        page.newGame()
     }
 
 
