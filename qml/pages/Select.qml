@@ -8,7 +8,7 @@ Page {
     //allowedOrientations: Orientation.All
 
     property bool debug: false
-    property var boards
+    property var boards:[]
     property var theme
     property var scores: []
     property string mode: "GAME_MODE_STANDARD"
@@ -81,7 +81,28 @@ Page {
         contentHeight: col.height
 
         VerticalScrollDecorator { flickable: flickable }
+        PullDownMenu {
+            id: mainPulleyMenu
+            MenuItem {
+                text: qsTr("About")
+                onClicked: {
+                    pageStack.push(Qt.resolvedUrl("About.qml"), {})
+                }
+            }
+            MenuItem {
+                text: qsTr("WebView")
+                onClicked: {
+                    pageStack.push(Qt.resolvedUrl("WebView.qml"), {})
+                }
+            }
+            MenuItem {
+                text: qsTr("Style")
+                onClicked: {
+                    pageStack.push(Qt.resolvedUrl("Style.qml"), {})
+                }
+            }
 
+        }
         Column {
             id: col
             width: parent.width
@@ -90,7 +111,7 @@ Page {
             PageHeader {
                 title: qsTr("Boards")
             }
-
+            // currently this is a no-op which I'm not sure what to do with.
             ComboBox {
                 id: modeControl
                 width: parent.width - 2 * Theme.paddingLarge
@@ -162,10 +183,9 @@ Page {
                     height: page.thumbH
                     anchors.verticalCenter: parent.verticalCenter
 
-                    // Baked miniature: one image per card instead of ~144
-                    // separate rectangle nodes, so the Select page's scene
-                    // graph stays light and the page transition animates
-                    // fast on the phone.
+                    // Prerendered miniature: one image per card instead of ~144
+                    // separate rectangle nodes,  sad, but, performance :)
+                    // the fallback is the nice rendering method which is way too slow
                     Image {
                         id: thumbImage
                         anchors.fill: parent
@@ -241,35 +261,33 @@ Page {
         }
     }
     Component.onCompleted: {
-                // Use the pushed list only if its entries are real objects;
-                // otherwise load again
-                var ok = false
-                if (boards && boards.length > 0) {
-                    var b0 = boards[0]
-                    ok = b0 !== null && typeof b0 === "object" && b0.map !== undefined
-                }
-                if (ok) {
-                    if (debug) console.log("Select: using pushed boards, " + boards.length)
-                } else {
-                    loadBoards()
-                }
 
-                page.refreshScores()
-            }
+        // used last loaded boards if it's a list ....
+        var ok = false
+        if (boards && boards.length > 0) {
+            var b0 = boards[0]
+            ok = b0 !== null && typeof b0 === "object" && b0.map !== undefined
+        }
+        if (ok) {
+            if (debug) console.log("Select: using pushed boards, " + boards.length)
+        } else {
+            loadBoards()
+        }
 
-            function loadBoards() {
-                Mah.loadJSON("../mah/assets/data/boards.json", function(doc) {
-                    var arr
-                    try {
-                        arr = JSON.parse(doc.responseText)
-                    } catch (err) {
-                        if (debug) console.error("Select: boards.json parse failed: " + err)
-                        return
-                    }
-                    page.boards = arr
-                    if (debug) console.log("Select: loaded " + (arr.length ? arr.length : 0) + " boards from file")
-                })
+        page.refreshScores()
+    }
+
+    function loadBoards() {
+        Mah.loadJSON("../mah/assets/data/boards.json", function(doc) {
+            try {
+                boards = JSON.parse(doc.responseText)
+            } catch (err) {
+                if (debug) console.error("Select: boards.json parse failed: " + err)
+                return
             }
+            if (debug) console.log("Select: loaded " + (arr.length ? arr.length : 0) + " boards from file")
+        })
+    }
 
     // Scores are read fresh from the database on activating
     onStatusChanged: {

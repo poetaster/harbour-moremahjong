@@ -14,12 +14,6 @@ CoverBackground {
         anchors.centerIn: parent
         source: "/usr/share/icons/hicolor/128x128/apps/harbour-moremahjong.png"
     }
-    Label {
-       anchors.top: mahImage.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        id: label
-        text: qsTr("Mah Solitaire") + " 2.0.0"
-    }
 
     CoverActionList {
         id: coverAction

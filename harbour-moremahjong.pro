@@ -19,9 +19,9 @@ DISTFILES += \
     qml/cover/CoverPage.qml \
     qml/harbour-moremahjong.qml \
     qml/pages/About.qml \
-    qml/pages/FirstPage.qml \
     qml/pages/Game.qml \
     qml/pages/MahData.js \
+    qml/pages/Style.qml \
     qml/pages/WebView.qml \
     qml/pages/db.js \
     qml/pages/Select.qml \

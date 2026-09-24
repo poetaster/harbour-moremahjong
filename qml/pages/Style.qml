@@ -17,22 +17,16 @@ Page {
         }
 }
     //allowedOrientations: Orientation.All
-
-    property string pendingTheme: ""
+    // nah, it just confuses the issue
 
     Timer {
         id: pushTimer
-        interval: 100
+        interval: 1000
         repeat: false
         onTriggered: {
-            var t = view.pendingTheme
-            view.pendingTheme = ""
-            if (t === "play") {
-                pageStack.push("Select.qml", {boards: view.boards, scores: view.scores})
-            } else if (t !== "") {
-                DB.setTheme(t)
-                pageStack.push("Select.qml", {boards: view.boards, scores: view.scores, theme: t})
-            }
+           DB.setTheme(t)
+           pageStack.pop()
+            //pageStack.push("Select.qml", {boards: view.boards, scores: view.scores, theme: t})
         }
     }
 
@@ -73,6 +67,10 @@ Page {
             anchors.bottom:header.top
             anchors.left:header.left
             size: BusyIndicatorSize.Large
+            BusyLabel {
+                id:busyLabel
+               text:qsTr("Current: ") + style
+            }
         }
         Column {
             id: selectSection
@@ -84,6 +82,10 @@ Page {
             BackgroundItem {
                 id:thOne
                 contentHeight: 300
+                Label {
+                    text: "Picasso"
+                    color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                }
                 Image {
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: parent.width - ( 4 * Theme.paddingLarge )
@@ -91,14 +93,19 @@ Page {
                     fillMode: Image.PreserveAspectCrop
                 }
                 onClicked: {
+                    style = "picasso"
+                    busyLabel.text = qsTr("Set to: ") + style
                     busy.running = true
-                    view.pendingTheme = "picasso"
                     pushTimer.start()
                 }
             }
             BackgroundItem {
                 id:thTwo
                 contentHeight: 300//Theme.itemSizeExtraLarge
+                Label {
+                    text: "Classic"
+                    color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                }
 
                 Image {
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -108,14 +115,19 @@ Page {
 
                 }
                 onClicked: {
+                    style = "classic"
+                    busyLabel.text = qsTr("Set to: ") + style
                     busy.running = true
-                    view.pendingTheme = "classic"
                     pushTimer.start()
                 }
             }
             BackgroundItem {
                 id:thThree
                 contentHeight: 300//Theme.itemSizeExtraLarge
+                Label {
+                    text: "Recri"
+                    color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                }
                 Image {
                     width: parent.width - ( 4 * Theme.paddingLarge )
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -123,14 +135,19 @@ Page {
                     fillMode: Image.PreserveAspectCrop
                 }
                 onClicked: {
-                    busy.visible = true
-                    view.pendingTheme = "recri"
+                    style = "recri"
+                    busyLabel.text = qsTr("Set to: ") + style
+                    busy.running = true
                     pushTimer.start()
                 }
             }
             BackgroundItem {
                 id:thFour
                 contentHeight: 300//Theme.itemSizeExtraLarge
+                Label {
+                    text: "Cheshire"
+                    color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                }
                 Image {
                     width: parent.width - ( 4 * Theme.paddingLarge )
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -138,8 +155,9 @@ Page {
                     fillMode: Image.PreserveAspectCrop
                 }
                 onClicked: {
-                    busy.visible = true
-                    view.pendingTheme = "cheshire137"
+                    style = "cheshire137"
+                    busyLabel.text = qsTr("Set to: ") + "Chesire"
+                    busy.running = true
                     pushTimer.start()
                 }
             }
@@ -166,18 +184,5 @@ Page {
             busy.running = false
     }
 
-    Component.onCompleted: {// Load all board definitions from assets/data/boards.json.
-        function loadBoards() {
-            var response;
-            var out = []
-            Mah.loadJSON("../mah/assets/data/boards.json", function(doc) {
-                response = JSON.parse(doc.responseText);
-                for (var i = 0; i < response.length ; i++) {
-                    boards[i] = response[i];
-                };
-            });
-        }
-        loadBoards()
-        scores = DB.loadScores()
-    }
+
 }
