@@ -167,7 +167,6 @@ Page {
                     pushTimer.start()
                 }
             }
-
             Row {
                 id: content
                 anchors.left: parent.left

@@ -37,8 +37,8 @@ import "pages/db.js" as DB
 
 ApplicationWindow
 {
-    id:appwindow
 
+    id:appwindow
     //allowedOrientations: Orientation.All
     initialPage: Component { Select { }}
     cover: Qt.resolvedUrl("cover/CoverPage.qml")

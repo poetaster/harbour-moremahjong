@@ -24,7 +24,7 @@ Page {
         interval: 1000
         repeat: false
         onTriggered: {
-           DB.setTheme(t)
+           DB.setTheme(style)
            pageStack.pop()
             //pageStack.push("Select.qml", {boards: view.boards, scores: view.scores, theme: t})
         }
@@ -34,7 +34,8 @@ Page {
     SilicaFlickable {
         anchors.fill: parent
         PageHeader {
-            title: qsTr("Mah Solitaire")
+            id:header
+           title: qsTr("Select Style")
         }
         PullDownMenu {
             id: mainPulleyMenu
@@ -45,20 +46,6 @@ Page {
                     pageStack.push(Qt.resolvedUrl("About.qml"), {})
                 }
             }
-            MenuItem {
-                text: qsTr("WebView")
-                visible: ! parent.profilePage
-                onClicked: {
-                    pageStack.push(Qt.resolvedUrl("WebView.qml"), {})
-                }
-            }
-
-        }
-
-        SectionHeader {
-            id: header
-                text: qsTr("Select Style")
-                anchors.bottom: selectSection.top
         }
         BusyIndicator {
             z:10
@@ -73,25 +60,32 @@ Page {
             }
         }
         Column {
+            y:280
+            x:20
             id: selectSection
-            anchors.centerIn: parent
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width
-            spacing: 300
+            width: parent.width - (  Theme.paddingLarge )
+            spacing: Theme.paddingLarge
 
             BackgroundItem {
+                width: parent.width
+                height: thOneL.height + thOneI.height
                 id:thOne
-                contentHeight: 300
+
                 Label {
+                    id:thOneL
+                    anchors.bottom:thOneI.top
+                    width: parent.width - (  Theme.paddingLarge )
                     text: "Picasso"
                     color: highlighted ? Theme.highlightColor : Theme.primaryColor
                 }
                 Image {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: parent.width - ( 4 * Theme.paddingLarge )
+                    id:thOneI
+                    anchors.top:thOneL.bottom // redundant anchors?
+                    width: parent.width - (  Theme.paddingLarge )
                     source: Qt.resolvedUrl("picasso.png")
                     fillMode: Image.PreserveAspectCrop
                 }
+
                 onClicked: {
                     style = "picasso"
                     busyLabel.text = qsTr("Set to: ") + style
@@ -101,15 +95,20 @@ Page {
             }
             BackgroundItem {
                 id:thTwo
-                contentHeight: 300//Theme.itemSizeExtraLarge
+                width: parent.width
+                height: thTwoL.height + thTwoI.height
                 Label {
+                    id:thTwoL
+                    anchors.bottom:thTwoI.top
+                    width: parent.width - (  Theme.paddingLarge )
                     text: "Classic"
                     color: highlighted ? Theme.highlightColor : Theme.primaryColor
                 }
 
                 Image {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: parent.width - ( 4 * Theme.paddingLarge )
+                    id:thTwoI
+                    anchors.top:thTwoL.bottom
+                    width: parent.width - (  Theme.paddingLarge )
                     source: Qt.resolvedUrl("classic.png")
                     fillMode: Image.PreserveAspectCrop
 
@@ -123,14 +122,19 @@ Page {
             }
             BackgroundItem {
                 id:thThree
-                contentHeight: 300//Theme.itemSizeExtraLarge
+                width: parent.width
+                height: thThreeL.height + thThreeI.height
                 Label {
+                    id:thThreeL
+                    width: parent.width - (  Theme.paddingLarge )
+                    anchors.bottom:thThreeI.top
                     text: "Recri"
                     color: highlighted ? Theme.highlightColor : Theme.primaryColor
                 }
                 Image {
-                    width: parent.width - ( 4 * Theme.paddingLarge )
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    id:thThreeI
+                    anchors.top:thThreeL.bottom
+                    width: parent.width - (  Theme.paddingLarge )
                     source: Qt.resolvedUrl("recri.png")
                     fillMode: Image.PreserveAspectCrop
                 }
@@ -141,16 +145,22 @@ Page {
                     pushTimer.start()
                 }
             }
+
             BackgroundItem {
                 id:thFour
-                contentHeight: 300//Theme.itemSizeExtraLarge
+                height: thFourL.height + thFourI.height
+                width: parent.width
                 Label {
+                    id:thFourL
+                    width: parent.width - (  Theme.paddingLarge )
+                    anchors.bottom:thFourI.top
                     text: "Cheshire"
                     color: highlighted ? Theme.highlightColor : Theme.primaryColor
                 }
                 Image {
-                    width: parent.width - ( 4 * Theme.paddingLarge )
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    id:thFourI
+                    anchors.top:thFourL.bottom
+                    width: parent.width - (  Theme.paddingLarge )
                     source: Qt.resolvedUrl("cheshire137.png")
                     fillMode: Image.PreserveAspectCrop
                 }
@@ -161,21 +171,6 @@ Page {
                     pushTimer.start()
                 }
             }
-            /*
-            BackgroundItem {
-                id:thFour
-                //contentHeight: Theme.itemSizeExtraLarge
-
-                Button {
-                    width: parent.width
-                    text: qsTr("Play")
-                    onClicked: {
-                        busy.running = true
-                        view.pendingTheme = "play"
-                        pushTimer.start()
-                    }
-                }
-            }*/
 
         }
     }
