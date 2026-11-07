@@ -21,7 +21,7 @@ Page {
 
     Timer {
         id: pushTimer
-        interval: 1000
+        interval: 800
         repeat: false
         onTriggered: {
            DB.setTheme(style)
@@ -115,6 +115,7 @@ Page {
                 }
                 onClicked: {
                     style = "classic"
+                    header.title = style.charAt(0).toUpperCase() + style.slice(1) + qsTr(" selected")
                     busyLabel.text = qsTr("Set to: ") + style
                     busy.running = true
                     pushTimer.start()
@@ -140,6 +141,7 @@ Page {
                 }
                 onClicked: {
                     style = "recri"
+                    header.title = style.charAt(0).toUpperCase() + style.slice(1) + qsTr(" selected")
                     busyLabel.text = qsTr("Set to: ") + style
                     busy.running = true
                     pushTimer.start()
@@ -166,6 +168,7 @@ Page {
                 }
                 onClicked: {
                     style = "cheshire137"
+                    header.title = style.charAt(0).toUpperCase() + style.slice(1) + qsTr(" selected")
                     busyLabel.text = qsTr("Set to: ") + "Chesire"
                     busy.running = true
                     pushTimer.start()

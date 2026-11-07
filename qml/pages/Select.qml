@@ -18,7 +18,7 @@ Page {
     // that gap, behind the spinner.
     property var pendingBoard: null
     property string pendingBoardId: ""
-
+    onActiveFocusChanged: theme = DB.getTheme().value
     Timer {
         id: pushTimer
         interval: 150
@@ -109,7 +109,7 @@ Page {
             spacing: Theme.paddingMedium
 
             PageHeader {
-                title: qsTr("Boards")
+                title: qsTr("Boards, Style ") + theme.charAt(0).toUpperCase() + theme.slice(1)
             }
             // currently this is a no-op which I'm not sure what to do with.
             ComboBox {
