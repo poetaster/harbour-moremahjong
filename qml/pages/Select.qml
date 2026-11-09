@@ -34,7 +34,7 @@ Page {
                 // on the solver.
                 var g = Mah.dealBoard(b)
                 busy.running = false
-                pageStack.push("Game.qml", { board: b, boardId: bid, mode: page.mode, prepared: g })
+                pageStack.replace("Game.qml", { board: b, boardId: bid, mode: page.mode, prepared: g })
             }
         }
     }

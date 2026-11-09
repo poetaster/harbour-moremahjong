@@ -54,263 +54,278 @@ Page {
         running: page.running //&& !AppCover.active
         onTriggered: page.elapsedMs += 1000
     }
+    SilicaFlickable {
+        id: flickable
+        anchors.fill: parent
+        contentHeight: col.height
 
-    //  top bar  - just a spacer currently
-    Item {
-        id: topBar
-        z: 10
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        width: parent.width
-        height: 30
-        Row {
-            id: topRow
-            anchors.verticalCenter: parent.verticalCenter
-            x: Theme.paddingLarge
-            width: parent.width
-            spacing: Theme.paddingMedium
-
-            Column {
-                id: titleCol
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 1
-                width: Math.min(160, topRow.width * 0.35)
+        //VerticalScrollDecorator { flickable: flickable }
+        PullDownMenu {
+            id: mainPulleyMenu
+            MenuItem {
+                text: qsTr("Select Board")
+                onClicked: {
+                    pageStack.replace(Qt.resolvedUrl("Select.qml"), {})
+                }
             }
+
+        }
+        //  top bar  - just a spacer currently
+        Item {
+            id: topBar
+            z: 10
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            width: parent.width
+            height: 30
+            Row {
+                id: topRow
+                anchors.verticalCenter: parent.verticalCenter
+                x: Theme.paddingLarge
+                width: parent.width
+                spacing: Theme.paddingMedium
+
+                Column {
+                    id: titleCol
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 1
+                    width: Math.min(160, topRow.width * 0.35)
+                }
+            }
+
         }
 
-    }
-
-    // bottom bar visible as a 'right bar' 'twisted it is'
-    Item {
-        id: bottomBar
-        z: 10
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        width: parent.width / 6
-        height: parent.width / 5
-        rotation:90
-        transformOrigin: Item.TopRight
-        Column {
-            id: toolRow
-            width: parent.width
-            spacing: Theme.paddingMedium
-
-            Label {
-                width: parent.width
-                elide: Text.ElideRight
-                text: page.boardName
-                font.pixelSize: Theme.fontSizeMedium
-            }
-            Label {
-                width: parent.width
-                elide: Text.ElideRight
-                opacity: 0.85
-                font.pixelSize: Theme.fontSizeSmall
-                text: page.building ? qsTr("Preparing board…")
-                      : (page.game.count || 0) + qsTr(" tiles") + "  \n  "
-                        + Mah.formatTime(page.elapsedMs)
-            }
-            Label {
-                id: bestLabel
-                width: parent.width
-                elide: Text.ElideRight
-                opacity: 0.85
-                font.pixelSize: Theme.fontSizeSmall
-                text: {
-                    var bt = DB.bestTimeFor(page.boardId)
-                    return bt > 0 ? qsTr("Best %1").arg(Mah.formatTime(bt)) : ""
-                }
-            }
-            Button {
-                width: parent.width
-                icon.source: "image://theme/icon-m-tab-return"
-
-                //text: qsTr("Undo")
-                enabled: page.running && page.undoAvailable
-                onClicked: page.doUndo()
-            }
-
-            Button {
-                visible: !isExpert
-                width: parent.width
-                icon.source: "image://theme/icon-m-search"
-                enabled: page.running
-                onClicked: page.doHint()
-            }
-
-            Button {
-                width: parent.width
-                visible: isEasy
-                icon.source: "image://theme/icon-m-shuffle"
-                enabled: page.running
-                onClicked: page.doShuffle()
-            }
-
-            Button {
-                width: parent.width
-                icon.source: "image://theme/icon-m-new"
-                //text: qsTr("Restart")
-                enabled: page.running || page.resultMsg !== ""
-                onClicked: page.newGame()
-            }
-            //  game over
+        // bottom bar visible as a 'right bar' 'twisted it is'
+        Item {
+            id: bottomBar
+            z: 10
+            anchors.bottom: parent.bottom
+            anchors.right: parent.right
+            width: parent.width / 6
+            height: parent.width / 5
+            rotation:90
+            transformOrigin: Item.TopRight
             Column {
-                id: gamePopup
-                visible: false
-                width: parent.width//Math.min(360, page.width - 2 * Theme.paddingLarge)
-                spacing: Theme.paddingLarge
+                id: toolRow
+                width: parent.width
+                spacing: Theme.paddingMedium
 
                 Label {
                     width: parent.width
-                    horizontalAlignment: Text.AlignHCenter
-                    font.bold: true
-                    font.pixelSize: Theme.fontSizeLarge
-                    text: page.resultMsg === "win" ? qsTr("Oh, yes!") : qsTr("Oh, no!")
+                    elide: Text.ElideRight
+                    text: page.boardName
+                    font.pixelSize: Theme.fontSizeMedium
                 }
                 Label {
                     width: parent.width
-                    horizontalAlignment: Text.AlignHCenter
+                    elide: Text.ElideRight
                     opacity: 0.85
                     font.pixelSize: Theme.fontSizeSmall
-                    text: page.resultMsg === "win" ?
-                              qsTr("Time %1").arg(Mah.formatTime(page.elapsedMs))
-                            : qsTr("%1 tiles remain").arg(page.game.count || 0)
+                    text: page.building ? qsTr("Preparing board…")
+                                        : (page.game.count || 0) + qsTr(" tiles") + "  \n  "
+                                          + Mah.formatTime(page.elapsedMs)
+                }
+                Label {
+                    id: bestLabel
+                    width: parent.width
+                    elide: Text.ElideRight
+                    opacity: 0.85
+                    font.pixelSize: Theme.fontSizeSmall
+                    text: {
+                        var bt = DB.bestTimeFor(page.boardId)
+                        return bt > 0 ? qsTr("Best %1").arg(Mah.formatTime(bt)) : ""
+                    }
+                }
+                Button {
+                    width: parent.width
+                    icon.source: "image://theme/icon-m-tab-return"
+
+                    //text: qsTr("Undo")
+                    enabled: page.running && page.undoAvailable
+                    onClicked: page.doUndo()
                 }
 
+                Button {
+                    visible: !isExpert
+                    width: parent.width
+                    icon.source: "image://theme/icon-m-search"
+                    enabled: page.running
+                    onClicked: page.doHint()
+                }
+
+                Button {
+                    width: parent.width
+                    visible: isEasy
+                    icon.source: "image://theme/icon-m-shuffle"
+                    enabled: page.running
+                    onClicked: page.doShuffle()
+                }
+
+                Button {
+                    width: parent.width
+                    icon.source: "image://theme/icon-m-new"
+                    //text: qsTr("Restart")
+                    enabled: page.running || page.resultMsg !== ""
+                    onClicked: page.newGame()
+                }
+                //  game over
+                Column {
+                    id: gamePopup
+                    visible: false
+                    width: parent.width//Math.min(360, page.width - 2 * Theme.paddingLarge)
+                    spacing: Theme.paddingLarge
+
+                    Label {
+                        width: parent.width
+                        horizontalAlignment: Text.AlignHCenter
+                        font.bold: true
+                        font.pixelSize: Theme.fontSizeLarge
+                        text: page.resultMsg === "win" ? qsTr("Oh, yes!") : qsTr("Oh, no!")
+                    }
+                    Label {
+                        width: parent.width
+                        horizontalAlignment: Text.AlignHCenter
+                        opacity: 0.85
+                        font.pixelSize: Theme.fontSizeSmall
+                        text: page.resultMsg === "win" ?
+                                  qsTr("Time %1").arg(Mah.formatTime(page.elapsedMs))
+                                : qsTr("%1 tiles remain").arg(page.game.count || 0)
+                    }
+
+                }
             }
+
         }
 
-    }
-
-    //  board
-    Item {
-        id: stage
-        anchors.top: topBar.bottom
-        anchors.bottom: bottomBar.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        clip: true
-
-        property real fitScale: 1
-        property real boardW: 1
-        property real boardH: 1
-        property real minX: 0
-        property real minY: 0
-        readonly property real scale: fitScale
-
-        // Fit the whole board into the stage at the largest size that fits, centered.
-        function adjustFit() {
-            if (boardW > 0 && boardH > 0 && width > 0 && height > 0)
-                fitScale = Math.min(width / boardW, height / boardH) * 0.95
-        }
-
+        //  board
         Item {
-            id: boardItem
-            // Scale about the top-left corner, NOT the default center: the
-            // x/y centering formula and the hit test both assume a top-left
-            // anchored scale. With the default (center) origin every tap is
-            // offset by (w/2)(1-s) in each axis.
-            x: ( stage.width - boardItem.width ) / 2 - 100
-            y: ( stage.height - boardItem.height ) / 2 - 100
-            width: stage.boardW - (4*Theme.paddingLarge)
-            height: stage.boardH - (4*Theme.paddingLarge)
-            scale: stage.scale
+            id: stage
+            anchors.top: topBar.bottom
+            anchors.bottom: bottomBar.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            clip: true
 
-            Repeater {
-                id: rep
-                // The ListModel itself (not its count): the delegate then
-                // receives the row's roles (idx, px, py, zsort, src) as
-                // context properties, and remove(i) destroys the right
-                // delegate instead of just shrinking an int model.
-                // This is reasonably fast :)
-                model: tileModel
+            property real fitScale: 1
+            property real boardW: 1
+            property real boardH: 1
+            property real minX: 0
+            property real minY: 0
+            readonly property real scale: fitScale
 
-                delegate: Item {
-                    id: tileDelegate
-                    // rotated footprint: wide = TILE_H, tall = TILE_W
-                    width: Mah.TILE_H
-                    height: Mah.TILE_W
-                    // px/py roles (renamed from x/y to avoid the Item.x
-                    // self-reference trap); idx/zsort/src bind directly
-                    // from the model context
-                    x: px
-                    y: py
-                    z: zsort
+            // Fit the whole board into the stage at the largest size that fits, centered.
+            function adjustFit() {
+                if (boardW > 0 && boardH > 0 && width > 0 && height > 0)
+                    fitScale = Math.min(width / boardW, height / boardH) * 0.95
+            }
 
-                    Rectangle {
-                        id: face
-                        anchors.centerIn: parent
-                        width: Mah.TILE_H + 1
-                        height: Mah.TILE_W + 1
-                        radius: 8
-                        color: "#f4eeda"
-                        property bool sel: idx === page.selectedIdx
-                        property bool hin: page.hintIdxs.indexOf(idx) >= 0
-                        border.width: sel ? 5 : (hin ? 4 : 2)
-                        border.color: sel ? "#ffc400"
-                                          : (hin ? "#00b7ff" : "rgba(60,50,30,0.55)")
+            Item {
+                id: boardItem
+                // Scale about the top-left corner, NOT the default center: the
+                // x/y centering formula and the hit test both assume a top-left
+                // anchored scale. With the default (center) origin every tap is
+                // offset by (w/2)(1-s) in each axis.
+                x: ( stage.width - boardItem.width ) / 2 - 100
+                y: ( stage.height - boardItem.height ) / 2 - 100
+                width: stage.boardW - (4*Theme.paddingLarge)
+                height: stage.boardH - (4*Theme.paddingLarge)
+                scale: stage.scale
+
+                Repeater {
+                    id: rep
+                    // The ListModel itself (not its count): the delegate then
+                    // receives the row's roles (idx, px, py, zsort, src) as
+                    // context properties, and remove(i) destroys the right
+                    // delegate instead of just shrinking an int model.
+                    // This is reasonably fast :)
+                    model: tileModel
+
+                    delegate: Item {
+                        id: tileDelegate
+                        // rotated footprint: wide = TILE_H, tall = TILE_W
+                        width: Mah.TILE_H
+                        height: Mah.TILE_W
+                        // px/py roles (renamed from x/y to avoid the Item.x
+                        // self-reference trap); idx/zsort/src bind directly
+                        // from the model context
+                        x: px
+                        y: py
+                        z: zsort
+
+                        Rectangle {
+                            id: face
+                            anchors.centerIn: parent
+                            width: Mah.TILE_H + 1
+                            height: Mah.TILE_W + 1
+                            radius: 8
+                            color: "#f4eeda"
+                            property bool sel: idx === page.selectedIdx
+                            property bool hin: page.hintIdxs.indexOf(idx) >= 0
+                            border.width: sel ? 5 : (hin ? 4 : 2)
+                            border.color: sel ? "#ffc400"
+                                              : (hin ? "#00b7ff" : "rgba(60,50,30,0.55)")
+                        }
+                        Image {
+                            anchors.centerIn: parent
+                            width: Mah.TILE_H - 6
+                            height: Mah.TILE_W - 6
+                            source: src
+                            smooth: true
+                            asynchronous: true // mucho importanté!
+                        }
                     }
-                    Image {
-                        anchors.centerIn: parent
-                        width: Mah.TILE_H - 6
-                        height: Mah.TILE_W - 6
-                        source: src
-                        smooth: true
-                        asynchronous: true // mucho importanté!
+                }
+            }
+
+            // Input area over the whole stage: a tap picks the topmost tile
+            // under the pointer in paint order.
+            MouseArea {
+                id: stageMouse
+                anchors.fill: parent
+                z: 5
+                enabled: !page.building
+
+                function tileAtPoint(mx, my) {
+                    if (stage.scale <= 0)
+                        return -1
+                    // Map through the item's *actual* transform (mapFromItem
+                    // honors transformOrigin), instead of assuming a top-left
+                    // anchored scale. Fallback: manual top-left math.
+                    var bx, by
+                    try {
+                        var p = boardItem.mapFromItem(stage, mx, my)
+                        bx = p.x
+                        by = p.y
+                    } catch (e) {
+                        bx = (mx - boardItem.x) / stage.scale
+                        by = (my - boardItem.y) / stage.scale
                     }
+                    var best = -1
+                    var bestZ = -1
+                    for (var i = 0; i < tileModel.count; i++) {
+                        var t = tileModel.get(i)
+                        if (bx >= t.px && bx <= t.px + Mah.TILE_H &&
+                                by >= t.py && by <= t.py + Mah.TILE_W &&
+                                t.zsort > bestZ) {
+                            bestZ = t.zsort
+                            best = t.idx
+                        }
+                    }
+                    return best
+                }
+
+                onClicked: {
+                    var t = tileAtPoint(mouseX, mouseY)
+                    if (t >= 0)
+                        page.tileClicked(t)
                 }
             }
         }
 
-        // Input area over the whole stage: a tap picks the topmost tile
-        // under the pointer in paint order.
-        MouseArea {
-            id: stageMouse
-            anchors.fill: parent
-            z: 5
-            enabled: !page.building
 
-            function tileAtPoint(mx, my) {
-                if (stage.scale <= 0)
-                    return -1
-                // Map through the item's *actual* transform (mapFromItem
-                // honors transformOrigin), instead of assuming a top-left
-                // anchored scale. Fallback: manual top-left math.
-                var bx, by
-                try {
-                    var p = boardItem.mapFromItem(stage, mx, my)
-                    bx = p.x
-                    by = p.y
-                } catch (e) {
-                    bx = (mx - boardItem.x) / stage.scale
-                    by = (my - boardItem.y) / stage.scale
-                }
-                var best = -1
-                var bestZ = -1
-                for (var i = 0; i < tileModel.count; i++) {
-                    var t = tileModel.get(i)
-                    if (bx >= t.px && bx <= t.px + Mah.TILE_H &&
-                            by >= t.py && by <= t.py + Mah.TILE_W &&
-                            t.zsort > bestZ) {
-                        bestZ = t.zsort
-                        best = t.idx
-                    }
-                }
-                return best
-            }
-
-            onClicked: {
-                var t = tileAtPoint(mouseX, mouseY)
-                if (t >= 0)
-                    page.tileClicked(t)
-            }
-        }
+        ListModel { id: tileModel }
     }
-
-
-    ListModel { id: tileModel }
-
     // progressive board build
 
     property bool building: false
@@ -331,7 +346,7 @@ Page {
                 var t = q[page.buildPos]
                 page.buildPos++
                 tileModel.append({ idx: t.idx, px: t.px, py: t.py,
-                                   zsort: t.zsort, src: t.src })
+                                     zsort: t.zsort, src: t.src })
             }
             if (page.buildPos >= n) {
                 page.building = false
@@ -358,14 +373,14 @@ Page {
             var v = p.py - stage.minY
             var H = stage.boardW
             q.push({
-                     idx: i,
-                     // 90° CW rotation (board turned 180° vs the old view):
-                     // old top-left (u,v) -> (H - v - TILE_H, u)
-                     px: H - v - Mah.TILE_H,
-                     py: u,
-                     zsort: p.zsort,
-                     src: Mah.imageFor(s.v)
-                 })
+                       idx: i,
+                       // 90° CW rotation (board turned 180° vs the old view):
+                       // old top-left (u,v) -> (H - v - TILE_H, u)
+                       px: H - v - Mah.TILE_H,
+                       py: u,
+                       zsort: p.zsort,
+                       src: Mah.imageFor(s.v)
+                   })
         }
         q.sort(function(a, b) { return a.zsort - b.zsort })
         page.buildQueue = q
@@ -389,12 +404,12 @@ Page {
             var u = p.px - stage.minX
             var v = p.py - stage.minY
             tileModel.append({
-                               idx: j,
-                               px: stage.boardW - v - Mah.TILE_H,
-                               py: u,
-                               zsort: p.zsort,
-                               src: Mah.imageFor(s.v)
-                           })
+                                 idx: j,
+                                 px: stage.boardW - v - Mah.TILE_H,
+                                 py: u,
+                                 zsort: p.zsort,
+                                 src: Mah.imageFor(s.v)
+                             })
         }
         refreshFlags()
     }
